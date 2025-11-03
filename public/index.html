@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Álbum del día — Generador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="toolbar shell">
+      <input id="spotifyUrl" class="input" placeholder="Pega aquí tu link de Spotify (track / album / playlist)" />
+      <button id="btnGen" class="btn">Generar</button>
+      <button id="btnExport" class="btn ghost" title="Exportar JSON para tu otra página">Exportar JSON</button>
+      <label class="hint">Sin token: oEmbed (título, artista, portada, player). Con token: tracklist y duración total.</label>
+    </section>
+
+    <section id="result" class="shell album hidden">
+      <header class="album-head">
+        <div class="cover-wrap">
+          <img id="cover" class="cover" alt="Portada" />
+        </div>
+        <div class="meta">
+          <h1 id="title">—</h1>
+          <a id="artistLink" target="_blank" rel="noopener" class="artist">—</a>
+          <div class="chips">
+            <span id="date" class="chip"></span>
+            <span id="duration" class="chip"></span>
+          </div>
+          <div class="palette" id="palette"></div>
+        </div>
+      </header>
+
+      <section class="player glass">
+        <div id="embedWrap" class="embed-wrap">
+          <div id="embedContainer"></div>
+          <div class="embed-glass" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <section class="content">
+        <article class="card prose">
+          <h2>Por qué me gusta</h2>
+          <textarea id="why" class="why" placeholder="Escribe aquí tu texto (editable)…"></textarea>
+        </article>
+
+        <aside class="card tracks">
+          <h3>Tracklist</h3>
+          <ol id="tracks"></ol>
+          <small id="totalDur" class="muted"></small>
+        </aside>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    // El frontend pedirá el token a este endpoint del mismo server
+    window.SPOTIFY_TOKEN_ENDPOINT = "/spotify-token";
+  </script>
+  <script src="app.js" defer></script>
+</body>
+</html>
