@@ -3,26 +3,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Álbum del día — Generador</title>
+  <title>Canción del día</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+  <script>
+    
+    window.SPOTIFY_TOKEN_ENDPOINT = "/api/spotify-token";
+  </script>
 </head>
 <body>
   <main class="page">
+    <!-- ¿Mi amor que buscas en el codigo? ¿Un mensaje? -->
+    <!-- Pues aqui está, te amo muchisimo -->
+
     <section class="toolbar shell">
       <input id="spotifyUrl" class="input" placeholder="Pega aquí tu link de Spotify (track / album / playlist)" />
-      <button id="btnGen" class="btn">Generar</button>
-      <button id="btnExport" class="btn ghost" title="Exportar JSON para tu otra página">Exportar JSON</button>
+      <div class="actions">
+        <button id="btnGen" class="btn">Generar</button>
+        <button id="btnExport" class="btn ghost" title="Exportar JSON para today.json">Exportar JSON</button>
+      </div>
       <label class="hint">Sin token: oEmbed (título, artista, portada, player). Con token: tracklist y duración total.</label>
     </section>
 
+    <!-- Vista -->
     <section id="result" class="shell album hidden">
       <header class="album-head">
-        <div class="cover-wrap">
-          <img id="cover" class="cover" alt="Portada" />
-        </div>
+        <img id="cover" class="cover" alt="Portada" />
         <div class="meta">
           <h1 id="title">—</h1>
           <a id="artistLink" target="_blank" rel="noopener" class="artist">—</a>
@@ -43,8 +51,18 @@
 
       <section class="content">
         <article class="card prose">
-          <h2>Por qué me gusta</h2>
-          <textarea id="why" class="why" placeholder="Escribe aquí tu texto (editable)…"></textarea>
+          <h2>Fragmento</h2>
+          <p id="lyric" class="lyric"></p>
+        </article>
+
+        <article class="card prose">
+          <h2>Mi mensaje</h2>
+          <p id="note"></p>
+        </article>
+
+        <article class="card prose">
+          <h2 id="bibleRef">Pasaje</h2>
+          <p id="bibleText"></p>
         </article>
 
         <aside class="card tracks">
@@ -56,10 +74,6 @@
     </section>
   </main>
 
-  <script>
-    // El frontend pedirá el token a este endpoint del mismo server
-    window.SPOTIFY_TOKEN_ENDPOINT = "/spotify-token";
-  </script>
   <script src="app.js" defer></script>
 </body>
 </html>
