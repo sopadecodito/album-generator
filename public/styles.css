@@ -158,3 +158,55 @@ h1, h2, h3, .artist{
   font-family: ui-rounded, "SF Pro Rounded", Nunito, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.01em;
 }
+
+/* =======================
+   Mobile layout (≤ 768px)
+   ======================= */
+@media (max-width: 768px){
+
+  /* margen y respiración */
+  body{ padding:16px; }
+
+  /* tapa superior: portada + título en 1 columna */
+  .album-head{
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .cover{
+    width: 110px; height: 110px; border-radius: 16px;
+  }
+  .meta h1{ font-size: 1.6rem; }
+  .chips{ flex-wrap: wrap; }
+  .palette{ display:none; } /* opcional: ocultar swatches en móvil */
+
+  /* player más compacto */
+  .player{ margin: 10px 0; }
+  .embed-wrap{ border-radius: 14px; }
+  .embed-wrap iframe{ height: 120px !important; }
+
+  /* cartas apiladas en 1 columna */
+  .content{
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* tipografía más legible y con salto de palabra */
+  .prose h2{ font-size: 1.2rem; }
+  #lyric, #note, #bibleText{
+    font-size: 1rem;
+    line-height: 1.65;
+    white-space: pre-line;
+    overflow-wrap: anywhere;      /* evita desbordes */
+    word-break: break-word;       /* por si hay palabras largas */
+    hyphens: auto;
+  }
+
+  /* bordes/espaciado de las cards */
+  .card{
+    border-radius: 14px;
+    padding: 14px;
+  }
+
+  /* Tracklist al final y ancho completo */
+  .tracks{ order: 99; }
+}
