@@ -129,3 +129,32 @@ body.viewer .toolbar{display:none}
   white-space: pre-line; /* 🔥 Respeta \n y saltos de línea */
   line-height: 1.6;
 }
+
+.font-rounded{
+  font-family:
+    ui-rounded,                /* SF Pro Rounded en Safari/iOS */
+    "SF Pro Rounded",          /* si el sistema la tiene */
+    Nunito,                    /* fallback web */
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Solo la letra del fragmento */
+#lyric{
+  white-space: pre-line;       /* respeta \n del JSON */
+  line-height: 1.75;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-size: clamp(1rem, 0.9rem + 0.6vw, 1.25rem);
+}
+#lyric{ composes: font-rounded; } /* si usas PostCSS; si no, aplica la clase en HTML (ver abajo) */
+
+/* Si prefieres sin composes, aplica la familia directamente: */
+#lyric{
+  font-family: ui-rounded, "SF Pro Rounded", Nunito, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* (Opcional) mismos rasgos para títulos/artist */
+h1, h2, h3, .artist{
+  font-family: ui-rounded, "SF Pro Rounded", Nunito, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.01em;
+}
