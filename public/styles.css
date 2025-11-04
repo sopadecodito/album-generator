@@ -124,3 +124,8 @@ body.viewer .toolbar{display:none}
 
 /* (Opcional) un pelín más grande para que luzca */
 #note, #bibleText, #lyric { line-height: 1.55; font-size: 1rem; }
+
+#lyric, #note, #bibleText {
+  white-space: pre-line; /* 🔥 Respeta \n y saltos de línea */
+  line-height: 1.6;
+}
