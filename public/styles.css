@@ -1,36 +1,27 @@
 :root{
   --bg-1:#0b0814;
   --bg-2:#130a1f;
-
-  --glass-1: rgba(16, 10, 28, 0.80);
-  --glass-2: rgba(12, 8, 22, 0.60);
-  --glass-stroke: rgba(255,255,255,0.08);
-
-  --text:#ece9f6;
-  --muted:#bfb6d6;
-
-  /* Acentos dinámicos (JS los actualiza) */
-  --accent:#a78bfa;
-  --accent-2:#ff5bd3;
+  --text:#ece9f6; --muted:#bfb6d6;
+  --glass-1: rgba(16,10,28,.80);
+  --glass-2: rgba(12,8,22,.60);
+  --glass-stroke: rgba(255,255,255,.08);
+  --accent:#a78bfa;        /* JS la actualiza */
+  --accent-2:#ff5bd3;      /* JS la actualiza */
 }
 
 
 *{box-sizing:border-box}
 html,body{height:100%}
-body{
-  margin:0; color:var(--text);
-  font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-
-  /* Liquid glass morado; toma colores de --accent / --accent-2 */
+/* se añade desde JS: body.classList.add('bg-locked') */
+body.bg-locked{
   background:
     radial-gradient(70vmax 55vmax at 12% 8%, color-mix(in oklch, var(--accent) 38%, transparent) 0%, transparent 60%),
     radial-gradient(70vmax 55vmax at 85% 12%, color-mix(in oklch, var(--accent-2) 22%, transparent) 0%, transparent 62%),
     radial-gradient(60vmax 50vmax at 50% 105%, color-mix(in oklch, #7c3aed 18%, transparent) 0%, transparent 60%),
-    linear-gradient(180deg, var(--bg-2), var(--bg-1));
-  background-attachment:fixed;
-
-  padding:28px; display:grid; place-items:start;
+    linear-gradient(180deg, var(--bg-2), var(--bg-1)) !important;
+  background-attachment: fixed !important;
 }
+
 
 .page{width:min(1100px,100%); margin-inline:auto}
 

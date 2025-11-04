@@ -10,6 +10,17 @@ const VIEW_MODE = params.get("view") !== "0";
 const $ = (sel) => document.querySelector(sel);
 const getParam = (k) => new URLSearchParams(location.search).get(k);
 
+function lockBackground(){
+  // borra inline previos y añade clase de bloqueo
+  document.body.style.background = '';
+  document.body.classList.add('bg-locked');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  lockBackground();
+});
+
+
 function parseSpotify(url){
   const m = String(url).match(/open\.spotify\.com\/(track|album|playlist)\/([A-Za-z0-9]+)/);
   if(!m) return null;
@@ -74,13 +85,7 @@ async function extractPalette(imgUrl, n=5){
 function applyPalette(cols){
   if(!cols || !cols.length) return;
   document.documentElement.style.setProperty('--accent', cols[0]);
-  const bg = `
-    radial-gradient(60vmax 60vmax at 8% 0%, ${cols[0]}22, transparent 60%),
-    radial-gradient(60vmax 60vmax at 90% 10%, ${cols[1]||cols[0]}22, transparent 60%),
-    linear-gradient(180deg, var(--bg-2), var(--bg-1))`;
-  document.body.style.background = bg;
-
-  const pal = $('#palette'); if (pal) { pal.innerHTML=''; cols.forEach(c=>{ const sw=document.createElement('div'); sw.className='sw'; sw.style.background=c; pal.appendChild(sw); }); }
+  document.documentElement.style.setProperty('--accent-2', cols[1] || cols[0]);
 }
 
 // ========= Util para usar iframe del JSON de forma segura =========
