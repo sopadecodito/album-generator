@@ -109,3 +109,18 @@ body.viewer .toolbar{display:none}
 .muted{color:var(--muted); margin-top:.6rem; display:block}
 
 .hidden{display:none}
+
+
+.prose p,
+#lyric,
+#note,
+#bibleText {
+  color: var(--text) !important;
+  opacity: 1 !important;
+}
+
+/* Si el título del pasaje se ve pálido */
+#bibleRef { color: var(--text) !important; }
+
+/* (Opcional) un pelín más grande para que luzca */
+#note, #bibleText, #lyric { line-height: 1.55; font-size: 1rem; }
