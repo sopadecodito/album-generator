@@ -3,7 +3,9 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method Not Allowed' });
     return;
   }
-
+// no mames mi amora, no deberias estar viendo esto
+// Robate mis credenciales si quieres jaklsdjaskd 
+// toma todo lo que quieras de mi
   const id = process.env.SPOTIFY_CLIENT_ID;
   const secret = process.env.SPOTIFY_CLIENT_SECRET;
   if (!id || !secret) {

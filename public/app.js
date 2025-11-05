@@ -214,10 +214,10 @@ async function renderFromTodayJson(){
         vid.controls = true;
         vid.playsInline = true;
         vid.preload = 'metadata';
-        vid.src = v.src;                   // ej. "media/not.mp4"
+        vid.src = v.src;                   // ahorita lo tengo en  "media/not.mp4"
         if (v.poster) vid.poster = v.poster;
         if (v.autoplay) vid.setAttribute('autoplay', '');
-        if (v.muted) vid.muted = true;     // autoplay en móvil requiere muted
+        if (v.muted) vid.muted = true;     // autoplay en móvil requiere muted pero no creo usarlo ahora
         if (v.loop)  vid.loop = true;
 
         wrap.appendChild(vid);
@@ -237,7 +237,7 @@ async function renderFromTodayJson(){
 }
 
 
-// ========= Exportar JSON (solo admin) =========
+//  Exportar JSON pa no ocupar el .py cuando no tenga mi pc y Dianita no se quede sin updates 
 function exportJSON(){
   const iframe = $('#embedContainer')?.querySelector('iframe');
   const src = iframe?.getAttribute('src') || '';
@@ -261,12 +261,12 @@ function exportJSON(){
   URL.revokeObjectURL(a.href);
 }
 
-// ========= Arranque =========
+// 
 document.addEventListener('DOMContentLoaded', ()=>{
-  // En viewer ocultamos la toolbar con clase en el body
+  // Dianita solo vera contenido
   if (VIEW_MODE) document.body.classList.add('viewer');
 
-  // Botones (solo si estás en admin)
+  // Botones (solo lo puedo ver yo)
   $('#btnGen')?.addEventListener('click', ()=>{
     const url = $('#spotifyUrl')?.value.trim();
     if(!url) return;
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     $('#spotifyUrl') && ($('#spotifyUrl').value = qp);
     renderFromUrl(qp);
   } else if (VIEW_MODE) {
-    renderFromTodayJson();  // Tu novia entra y lo ve directo
+    renderFromTodayJson();  // Dianita entra y lo ve directo
   }
 
   
