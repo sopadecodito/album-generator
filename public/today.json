@@ -1,12 +1,18 @@
 {
-  "title": "lo que no pasó...",
-  "artist": "Kendall Peña, Ana Sofi W.",
-  "date": "2025 (estupida api no dice en que mes)",
-  "duration": "2:38",
-  "cover": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02593881037c261286ae4ec9eb",
-  "spotify_embed_html": "<iframe data-testid=\"embed-iframe\" style=\"border-radius:12px\" src=\"https://open.spotify.com/embed/track/10LrAs1T7PLpg82xnxYOzD?utm_source=generator\" width=\"50%\" height=\"352\" frameBorder=\"0\" allowfullscreen=\"\" allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" loading=\"lazy\"></iframe>",
-  "lyric_highlight": "Que en pocos días yo me enamoré de ti\nA esto del amor yo no quería jugar\nPero llegaste y lo quise intentar\nY ahora me fui de la ciudad\nSerá que estando lejos me extrañas igual\nY todo esto solo fue un momento\nDime si esto volverá",
-  "message": "A veces pienso en esa noche y en todo lo que no dije. Quizás las cosas no fueron como esperábamos, pero si algo tengo claro es que no fue casualidad que te encontrara, Dios no juega a los dados.",
-  "bible_ref": "Cantar de los Cantares 8:6-7",
-  "bible_text": "El amor es tan fuerte como la muerte, las muchas aguas no podrán apagarlo,ni los ríos ahogarlo."
+  "title": "After Dark x Sweater Weather",
+  "artist": "The Neighbourhood x Mr Kitty",
+  "date": "No se la neta",
+  "cover": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e0226cfdf603f63c9491ca41fb4",
+  "spotify_embed": "https://open.spotify.com/embed/track/05WC9MzJ6PDggbD6D8Ifzr?utm_source=generator",
+  "lyric_highlight": "And if I may just take your breath away\nI don't mind if there's not much to say\nSometimes the silence guides our minds\nTo move to a place so far away",
+  "message": "El dia de hoy mi mensaje no es solo respecto a la cancion sino al tiktok que está abajo\n Esta página es mi intento de poner el collar en el suelo.\nNo quiero asfixiarte con el amor que siento, ni forzarte a tomarlo antes de tiempo.\nSolo quiero que sepas que está aquí esperándote\nno me voy, no presiono, no exijo.\nSolo dejo el amor en calma, para que cuando quieras, lo tomes tú\n Dejo el collar en el suelo. Y me siento a tu lado, esperando que todo se calme",
+  "bible_ref": "1 Corintios 13:4–5",
+  "bible_text": "El amor es paciente, es bondadoso.\nEl amor no es envidioso ni jactancioso, no se envanece;\nno hace nada indebido, no busca lo suyo,\nno se irrita, no guarda rencor.",
+  "video": {
+    "src": "media/not.mp4",              
+    "poster": "",                        
+    "autoplay": false,
+    "muted": false,
+    "loop": false
+  }
 }

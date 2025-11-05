@@ -179,7 +179,7 @@ async function renderFromTodayJson(){
     a.href = j.artist ? `https://open.spotify.com/search/${encodeURIComponent(j.artist)}` : '#';
     if (j.cover) $('#cover').src = j.cover;
 
-    // Player (sanear iframe del JSON)
+    // Player
     const embed = $('#embedContainer'); embed.innerHTML = '';
     let src = j.spotify_embed ? j.spotify_embed : null;
     if (!src && j.spotify_embed_html) src = extractSpotifySrc(j.spotify_embed_html);
@@ -196,15 +196,46 @@ async function renderFromTodayJson(){
     $('#bibleRef').textContent = j.bible_ref || 'Pasaje';
     $('#bibleText').textContent = j.bible_text || '';
 
-    // Campos simples extra
+    // Extras
     $('#date').textContent = j.date || '';
     $('#duration').textContent = '';
     $('#tracks').innerHTML = '';
     $('#totalDur').textContent = '';
 
+    // ==== Video opcional (MP4) ====
+    const box = document.querySelector('#videoBox');
+    if (box) {
+      const v = j.video;
+      if (v && v.src) {
+        const wrap = document.createElement('div');
+        wrap.className = 'video-wrap';
+
+        const vid = document.createElement('video');
+        vid.controls = true;
+        vid.playsInline = true;
+        vid.preload = 'metadata';
+        vid.src = v.src;                   // ej. "media/not.mp4"
+        if (v.poster) vid.poster = v.poster;
+        if (v.autoplay) vid.setAttribute('autoplay', '');
+        if (v.muted) vid.muted = true;     // autoplay en móvil requiere muted
+        if (v.loop)  vid.loop = true;
+
+        wrap.appendChild(vid);
+        box.innerHTML = '';
+        box.appendChild(wrap);
+        box.classList.remove('hidden');
+      } else {
+        box.classList.add('hidden');
+        box.innerHTML = '';
+      }
+    }
+
     $('#result').classList.remove('hidden');
-  }catch(e){ console.warn('No se pudo cargar today.json', e); }
+  }catch(e){
+    console.warn('No se pudo cargar today.json', e);
+  }
 }
+
 
 // ========= Exportar JSON (solo admin) =========
 function exportJSON(){
@@ -251,4 +282,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   } else if (VIEW_MODE) {
     renderFromTodayJson();  // Tu novia entra y lo ve directo
   }
+
+  
 });

@@ -210,3 +210,20 @@ h1, h2, h3, .artist{
   /* Tracklist al final y ancho completo */
   .tracks{ order: 99; }
 }
+
+#videoBox .video-wrap{
+  position: relative;
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  margin-top: 16px;
+}
+
+#videoBox video{
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #000;
+  aspect-ratio: 16/9;
+}
