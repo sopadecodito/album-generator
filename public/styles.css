@@ -211,6 +211,14 @@ h1, h2, h3, .artist{
   .tracks{ order: 99; }
 }
 
+.tracks h3,
+#videoBox h3,
+#videoSection h3 {
+  color: var(--text) !important;   /* tu color claro */
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
 #videoBox .video-wrap{
   position: relative;
   width: 100%;
