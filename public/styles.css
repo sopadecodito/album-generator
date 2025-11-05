@@ -238,7 +238,7 @@ h1, h2, h3, .artist{
   aspect-ratio: 16/9;
 }*/
 
-/* contenedor centrado */
+/* contenedor centrado pq neta me paso de verga*/
 #videoBox { display:flex; justify-content:center; }
 #videoBox .video-wrap{
   border-radius:18px; overflow:hidden;
@@ -254,7 +254,7 @@ h1, h2, h3, .artist{
 }
 
 /* —— Vertical (portrait) —— */
-/* móvil: pequeño (tipo historia) */
+/* móvil: pequeño (tipo storie) */
 #videoBox .video-wrap.portrait{
   width: 240px;
   aspect-ratio: 9 / 16;
@@ -266,7 +266,7 @@ h1, h2, h3, .artist{
   #videoBox .video-wrap.portrait{ width: 380px; }
 }
 
-/* —— Horizontal (por si algún día subes 16:9) —— */
+/* —— Horizontal (por si algún día subo 16:9 (QUE NO CREOOO)) —— */
 #videoBox .video-wrap.landscape{
   width: min(760px, 92vw);
   aspect-ratio: 16 / 9;
