@@ -73,12 +73,12 @@
         </article>
 
 <aside class="card tracks">
-  <h3>Tiktok</h3>
+  <h3>Hoy no hay video</h3>
   <ol id="tracks"></ol>
   <small id="totalDur" class="muted"></small>
 
   <!-- A veces habrá tiktoks a veces no, te amo -->
-  <div id="videoBox" class="hidden"></div>
+ <!-- <div id="videoBox" class="hidden"></div> -->
 </aside>
 
       </section>
@@ -86,5 +86,24 @@
   </main>
 
 <script src="app.js?v=8" defer></script>
+<!--La veladora se arrastra mi amor-->
+<div class="darkness" aria-hidden="true"></div>
+ <div id="hint" class="hint-msg">Arrastra la vela para iluminar</div>
+<div class="candle" aria-label="Veladora, arrastra para iluminar">
+  <svg viewBox="0 0 36 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- flama -->
+    <path class="flame" d="M18 6 C14 12, 22 14, 18 22 C24 20, 26 14, 18 6Z" fill="#FFC24D"/>
+    <path class="flame" d="M18 10 C16 13, 20 14, 18 18 C21 17, 22 14, 18 10Z" fill="#FF8A00" opacity=".7"/>
+    <!-- pabilo -->
+    <rect x="17" y="22" width="2" height="6" rx="1" fill="#3B3B3B"/>
+    <!-- vela -->
+    <rect x="10" y="28" width="16" height="26" rx="6" fill="#F2F2F5"/>
+    <rect x="10" y="28" width="16" height="26" rx="6" fill="#fcedc0" opacity=".6"/>
+    <!-- platito -->
+    <rect x="6" y="56" width="24" height="4" rx="2" fill="#A7A9B0" opacity=".9"/>
+  </svg>
+</div>
+
+<script src="candle.js" defer></script>
 </body>
 </html>
