@@ -416,18 +416,26 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
 
 
-// Desgarrar la carta
-// No pude hacer que se desgarrara, sabes lo dificil que es hacer formas en css? sajkldajsd
-document.querySelectorAll('.envelope').forEach(env=>{
-  const toggle = ()=>{
-    const isOpen = env.classList.toggle('open');
-    env.setAttribute('aria-expanded', String(isOpen));
-  };
-  env.addEventListener('click', toggle);
-  env.addEventListener('keydown', e=>{
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+// --- Toggle blur/visible ---
+const revealCard = document.querySelector('#revealThoughts');
+if (revealCard){
+  revealCard.addEventListener('click', (e)=>{
+    // toggle al hacer click en el card (excepto cuando haces scroll con la rueda)
+    revealCard.classList.toggle('active');
+    const box = revealCard.querySelector('.scrollbox');
+    box.classList.toggle('blurred', !revealCard.classList.contains('active'));
   });
-});
+
+  // también permitir con teclado (Enter/Espacio)
+  const box = document.querySelector('#revealBox');
+  box.addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      revealCard.click();
+    }
+  });
+}
+
 
 
 });
