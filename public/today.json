@@ -1,19 +1,30 @@
 {
-  "title": "Se fue la luz",
-  "artist": "Latin mafia ft. Jesse Baez",
+  "title": "si preguntas por mi",
+  "artist": "Tainy, Kris Floyd, Judeline",
   "date": "2023",
-  "cover": "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e0227fd10d2c3304c6944385cd1",
-  "spotify_embed": "https://open.spotify.com/embed/track/39PPT5p915YbhBfa8GWi4H?utm_source=generator",
-  "lyric_highlight": "No sé, la estoy asustando, ey\n¿Cómo decirte que te amo?, ¿qué?\nPensando coordenadas, ni sé dónde va a ser\nPero no importa nada, en la oscuridad nos vamos a perder\nQuién soy ya ni recordaba\nHasta que vi la eternidad en tu mirada\nEs que en la oscuridad, por Dios, todo se siente\nEs como que ya te conozco de repente",
-  "message": "Se fue la luz, pero aún puedo verte\nNo necesito que me mires, porque ya estás en todo lo que soy\nA veces pienso que el amor no necesita claridad, solo sentir que el otro sigue ahí, existiendo contigo, incluso en la oscuridad",
-  "bible_ref": "Juan 1:5",
-  "bible_text": "La luz brilla en las tinieblas, y las tinieblas no han podido apagarla.",
+  "cover": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02f885fb64a381318a1c9c14e4",
+  "spotify_embed": "https://open.spotify.com/embed/track/5Uoni5ULnC7Aq69DsRR10G?utm_source=generator",
+  "lyric_highlight": "Desde hace tiempo la sigo por su contenido\nLa tiene en quinientos, la miré y me miró\nSus ojos están persiguiéndome, lo presiento\nSi conecto, con ella me quedo y me pierdo, yeah\nLo prеsiento\nSi conecto, con ella mе quedo y me pierdo, yeah\nNo sé cuánto tengo que esperar\nPero se va a romper el reloj",
+  "message": "Lo presiento si conecto contigo, me quedo y me pierdo.\nTe agruegé por tu nombrey me quedé por tus ojos\nDesde el día uno y nuestro beso, entendí que siempre quise estar contigo\nHe visto muchas miradas, pero ninguna me ha dejado sin aire como la tuya",
+  "bible_ref": "Proverbios 31:10",
+  "bible_text": "Mujer virtuosa, ¿quién la hallará?\nPorque su estima sobrepasa largamente a la de las piedras preciosas.",
   "video": {
     "src": "media/not.mp4",              
     "poster": "",                        
     "autoplay": false,
     "muted": false,
     "loop": false
-  }
+  },
+  "gallery": [
+    { "src": "media/1.jpeg", "alt": "Te amaré" },
+    { "src": "media/2.jpeg", "alt": "todos" },
+    { "src": "media/3.jpeg", "alt": "los" },
+    { "src": "media/4.jpeg", "alt": "dias" },
+    { "src": "media/5.jpeg", "alt": "de" },
+    { "src": "media/6.jpeg", "alt": "mi" },
+    { "src": "media/7.jpeg", "alt": "vida" },
+    { "src": "media/8.jpeg", "alt": "mua" }
+  ]
+
 }
 

@@ -303,7 +303,7 @@ h1, h2, h3, .artist{
     );
 }
 
-/*  */
+/*  
 .darkness::after{
   content:"";
   position: fixed; inset: 0; pointer-events: none;
@@ -316,7 +316,7 @@ h1, h2, h3, .artist{
   z-index: -1;
 }
 
-/* No lo aplique ahorita, es para granulado pero se guarda por si las dudas xd */
+/* No lo aplique ahorita, es para granulado pero se guarda por si las dudas xd
 .darkness::before{
   content:"";
   position: fixed; inset:0; pointer-events:none;
@@ -330,7 +330,7 @@ h1, h2, h3, .artist{
   filter: blur(.2px);
 }
 
-/* Ahora si la veladora */
+/* Ahora si la veladora 
 .candle{
   position: fixed;
   left: calc(var(--lx) - 18px);
@@ -340,16 +340,16 @@ h1, h2, h3, .artist{
 }
 .candle:active{ cursor: grabbing; }
 
-/* Mensaje verde pegado a la veladora */
+/* Mensaje verde pegado a la veladora 
 .hint-msg{
   position: fixed;
-  /* Se ubica con las mismas vars que mueven la vela */
+  /* Se ubica con las mismas vars que mueven la vela 
   left: calc(var(--lx) + 28px);
   top:  calc(var(--ly) - 20px);
   transform: translateY(-50%);
 
 
-  background: rgba(48, 232, 116, 0.335);   /* Esto en web no se ve pero en visual se ve bien vergas que te deje cambiar el color sin el codigo hex jalksdjkas */
+  background: rgba(48, 232, 116, 0.335);   /* Esto en web no se ve pero en visual se ve bien vergas que te deje cambiar el color sin el codigo hex jalksdjkas
   color: #0b1a0f;                        
   font-family: ui-rounded, "SF Pro Rounded", Nunito, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: .92rem;
@@ -365,20 +365,20 @@ h1, h2, h3, .artist{
   transition: opacity .35s ease, left .1s linear, top .1s linear, transform .2s ease;
 }
 
-/* Flechita hacia la vela */
+/* Flechita hacia la vela
 .hint-msg::before{
   content:"";
   position: absolute;
-  left: -6px;               /* apunta hacia la vela (lado derecho de la vela) */
+  left: -6px;               /* apunta hacia la vela (lado derecho de la vela) 
   top: 50%; transform: translateY(-50%);
   border: 6px solid transparent;
   border-right-color: rgb(78, 229, 133);
 }
 
-/* Visible los primeros segundos */
+/* Visible los primeros segundos 
 .hint-msg.show{ opacity: 1; }
 
-/* Si está muy a la derecha, nos “volteamos” para que aparezca a la izquierda */
+/* Si está muy a la derecha, nos “volteamos” para que aparezca a la izquierda 
 .hint-msg.flip{
   left: calc(var(--lx) - 28px);
   transform: translate(-100%, -50%);
@@ -389,7 +389,177 @@ h1, h2, h3, .artist{
   border-left-color: rgba(34, 197, 94, 0.95);
 }
 
-/* Un poco más pequeño en móvil */
+/* Un poco más pequeño en móvil
 @media (max-width: 480px){
   .hint-msg{ font-size: .86rem; padding: 8px 12px; }
+}   */
+
+
+/* === Fortnite chest vibe: verde brillante con pulso y sheen === */
+.chest-green{
+  position: relative;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(22, 50, 28, 0.78), rgba(10, 28, 16, 0.66));
+  /* Borde base más “neón” */
+  border: 2px solid rgba(120, 255, 170, 0.45);
+  /* Glow exterior y un poco de profundidad */
+  box-shadow:
+    0 0 0 2px rgba(120,255,170,.25) inset,    
+    0 0 28px 6px rgba(120,255,170,.30),      
+    0 0 72px 18px rgba(120,255,170,.20),      
+    0 8px 22px rgba(0,0,0,0.45);              /* sombra de tarjeta */
+  overflow: hidden;
+}
+
+
+.chest-green::before{
+  content:"";
+  position:absolute; inset:-4px;
+  border-radius: inherit;
+  pointer-events:none;
+  background:
+    radial-gradient(160px 120px at 20% 0%, rgba(120,255,170,.28), transparent 60%),
+    radial-gradient(200px 140px at 92% 12%, rgba(80,255,170,.26), transparent 62%),
+    radial-gradient(260px 180px at 85% 95%, rgba(0,255,170,.22), transparent 60%);
+  filter: blur(8px);
+  opacity: .95;
+  animation: chestPulseStrong 2.4s ease-in-out infinite;
+}
+
+
+.chest-green::after{
+  content:"";
+  position:absolute; inset:-30%;
+  background: conic-gradient(from 210deg,
+    transparent 0 75%,
+    rgba(255,255,255,0.18) 78%,
+    transparent 82% 100%);
+  transform: translateX(-30%) rotate(8deg);
+  animation: chestSheen 3.8s linear infinite;
+  mix-blend-mode: screen;
+  pointer-events:none;
+  opacity:.6;
+}
+
+
+.chest-green .embed-wrap,
+.chest-green iframe{
+  border-radius: 14px;
+}
+
+/* Animacion */
+@keyframes chestPulseStrong{
+  0%,100%{
+    opacity:.85;
+    box-shadow:
+      0 0 36px 8px rgba(120,255,170,.30),
+      0 0 88px 20px rgba(120,255,170,.18);
+  }
+  50%{
+    opacity:1;
+    box-shadow:
+      0 0 54px 10px rgba(120,255,170,.42),
+      0 0 128px 26px rgba(120,255,170,.26);
+  }
+}
+@keyframes chestSheen{
+  0%   { transform: translateX(-40%) rotate(8deg); }
+  100% { transform: translateX(40%)  rotate(8deg); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .chest-green::before,
+  .chest-green::after{ animation: none; }
+}
+
+#galleryBox{
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(12,14,22,.65), rgba(8,10,16,.55));
+  border: 1px solid var(--glass-stroke, rgba(255,255,255,.12));
+  box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.carousel{
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-track{
+  display: flex;
+  transition: transform .45s ease;
+  will-change: transform;
+}
+
+.slide{
+  min-width: 100%;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+}
+
+.slide figure{
+  margin: 0;
+  width: 100%;
+  max-height: 72vh;
+  display: grid;
+  place-items: center;
+}
+
+.slide img{
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(0,0,0,.35);
+  background: #0b0e14;
+}
+
+/* Flechas */
+.nav-btn{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 40px; height: 40px;
+  border-radius: 999px;
+  display: grid; place-items: center;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(18,24,20,.6);
+  color: var(--text, #E9ECF4);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.4);
+  cursor: pointer;
+  user-select: none;
+}
+
+.nav-btn:hover{ background: rgba(18,24,20,.75); }
+.nav-prev{ left: 10px; }
+.nav-next{ right: 10px; }
+
+/* Dots */
+.dots{
+  position: absolute;
+  left: 0; right: 0; bottom: 8px;
+  display: flex; gap: 6px; justify-content: center; align-items:center;
+  z-index: 4;
+}
+.dot{
+  width: 8px; height: 8px; border-radius: 999px;
+  background: rgba(255,255,255,.28);
+  box-shadow: 0 2px 8px rgba(0,0,0,.35);
+  transition: transform .2s ease, background .2s ease;
+}
+.dot.active{
+  background: rgba(120,255,170,.95);
+  transform: scale(1.25);
+}
+
+/* Móvil: flechas más pequeñas */
+@media (max-width: 480px){
+  .nav-btn{ width:34px; height:34px; }
+  .slide img{ max-height: 62vh; }
 }

@@ -2,7 +2,7 @@
 if (typeof window.SPOTIFY_TOKEN_ENDPOINT === "undefined") {
   window.SPOTIFY_TOKEN_ENDPOINT = "/api/spotify-token";
 }
-// Viewer por defecto (tu novia). Usa ?view=0 para modo admin.
+// Viewer por defecto (Dianita view).
 const params = new URLSearchParams(location.search);
 const VIEW_MODE = params.get("view") !== "0";
 
@@ -11,15 +11,10 @@ const $ = (sel) => document.querySelector(sel);
 const getParam = (k) => new URLSearchParams(location.search).get(k);
 
 function lockBackground(){
-  // borra inline previos y añade clase de bloqueo
   document.body.style.background = '';
   document.body.classList.add('bg-locked');
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  lockBackground();
-});
-
+document.addEventListener('DOMContentLoaded', lockBackground);
 
 function parseSpotify(url){
   const m = String(url).match(/open\.spotify\.com\/(track|album|playlist)\/([A-Za-z0-9]+)/);
@@ -165,6 +160,140 @@ async function renderFromUrl(spotifyUrl){
   }
 }
 
+// ========= Carrusel (global) =========
+function renderGalleryFromJson(j){
+  const box = document.querySelector('#galleryBox');
+  if (!box) return;
+
+  const items = (j && Array.isArray(j.gallery)) ? j.gallery : [];
+  if (!items.length){
+    box.classList.add('hidden');
+    box.innerHTML = '';
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="carousel" role="region" aria-label="Galería">
+      <button class="nav-btn nav-prev" aria-label="Anterior">‹</button>
+      <button class="nav-btn nav-next" aria-label="Siguiente">›</button>
+      <div class="carousel-track">
+        ${items.map(it => `
+          <div class="slide">
+            <figure>
+              <img loading="lazy" src="${it.src}" alt="${(it.alt||'Foto')}" />
+            </figure>
+          </div>
+        `).join('')}
+      </div>
+      <div class="dots">
+        ${items.map((_,i)=> `<span class="dot ${i===0?'active':''}" data-i="${i}"></span>`).join('')}
+      </div>
+    </div>
+  `;
+  box.classList.remove('hidden');
+
+  makeCarousel(box.querySelector('.carousel'));
+}
+function makeCarousel(root){
+  const track   = root.querySelector('.carousel-track');
+  const slides  = Array.from(root.querySelectorAll('.slide'));
+  const prevBtn = root.querySelector('.nav-prev');
+  const nextBtn = root.querySelector('.nav-next');
+  const dots    = Array.from(root.querySelectorAll('.dot'));
+
+  let index = 0;
+  const total = slides.length;
+
+  // ancho del carrusel (más estable que clientWidth)
+  const getWidth = () => root.getBoundingClientRect().width;
+
+  function setArrowVisibility(){
+    // Ocultar/mostrar flechas en extremos
+    prevBtn.style.visibility = (index === 0) ? 'hidden' : 'visible';
+    nextBtn.style.visibility = (index === total - 1) ? 'hidden' : 'visible';
+
+    prevBtn.disabled = (index === 0);
+    nextBtn.disabled = (index === total - 1);
+    prevBtn.setAttribute('aria-disabled', prevBtn.disabled ? 'true' : 'false');
+    nextBtn.setAttribute('aria-disabled', nextBtn.disabled ? 'true' : 'false');
+  }
+
+  function update(){
+    const x = -index * getWidth();
+    track.style.transform = `translateX(${x}px)`;
+    dots.forEach((d,i)=> d.classList.toggle('active', i===index));
+    setArrowVisibility();
+  }
+
+  function go(n){
+    const next = Math.max(0, Math.min(total - 1, n)); // clamp
+    if (next === index) return;
+    index = next;
+    update();
+  }
+
+  // --- Botones  ---
+  const stop = e => { e.stopPropagation(); };
+  ['pointerdown','pointermove','pointerup','click'].forEach(ev=>{
+    prevBtn.addEventListener(ev, stop);
+    nextBtn.addEventListener(ev, stop);
+  });
+  prevBtn.addEventListener('click', ()=> go(index - 1));
+  nextBtn.addEventListener('click', ()=> go(index + 1));
+
+  // --- puntitos como los de instagram alv ---
+  dots.forEach(d => d.addEventListener('click', (e)=> {
+    e.stopPropagation();
+    const i = parseInt(d.dataset.i, 10);
+    if (!Number.isNaN(i)) go(i);
+  }));
+
+  let startX = 0, lastX = 0, dragging = false;
+  const threshold = 40;
+
+  track.addEventListener('pointerdown', e=>{
+    dragging = true;
+    startX = lastX = e.clientX;
+    track.setPointerCapture?.(e.pointerId);
+  });
+  track.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    lastX = e.clientX;
+  });
+  track.addEventListener('pointerup', e=>{
+    if(!dragging) return;
+    dragging = false;
+    const dx = lastX - startX;
+    if (Math.abs(dx) > threshold){
+      if (dx < 0) go(index + 1);
+      else go(index - 1);
+    }
+  });
+
+  root.setAttribute('tabindex', '0');
+  root.addEventListener('keydown', (e)=>{
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); go(index - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(index + 1); }
+  });
+
+  const onResize = () => update();
+  window.addEventListener('resize', onResize, { passive: true });
+
+
+  let imagesPending = slides.length;
+  slides.forEach(sl => {
+    const img = sl.querySelector('img');
+    if (!img || img.complete) { imagesPending--; return; }
+    img.addEventListener('load', ()=>{
+      imagesPending--;
+      if (imagesPending <= 0) update();
+    }, { once: true });
+  });
+
+  // Inicial
+  update();
+}
+
 // ========= Render desde today.json (viewer) =========
 async function renderFromTodayJson(){
   try{
@@ -187,7 +316,7 @@ async function renderFromTodayJson(){
       embed.innerHTML = `<iframe src="${src}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
     }
 
-    // Paleta
+    // Paleta (no se pq no sirve)
     if (j.cover) { try { const cols = await extractPalette(j.cover, 5); applyPalette(cols); } catch {} }
 
     // Textos
@@ -214,10 +343,10 @@ async function renderFromTodayJson(){
         vid.controls = true;
         vid.playsInline = true;
         vid.preload = 'metadata';
-        vid.src = v.src;                   // ahorita lo tengo en  "media/not.mp4"
+        vid.src = v.src;                   // "media/not.mp4"
         if (v.poster) vid.poster = v.poster;
         if (v.autoplay) vid.setAttribute('autoplay', '');
-        if (v.muted) vid.muted = true;     // autoplay en móvil requiere muted pero no creo usarlo ahora
+        if (v.muted) vid.muted = true;     // autoplay móvil requiere muted
         if (v.loop)  vid.loop = true;
 
         wrap.appendChild(vid);
@@ -230,14 +359,16 @@ async function renderFromTodayJson(){
       }
     }
 
+    // ==== Galería opcional ====
+    renderGalleryFromJson(j);
+
     $('#result').classList.remove('hidden');
   }catch(e){
     console.warn('No se pudo cargar today.json', e);
   }
 }
 
-
-//  Exportar JSON pa no ocupar el .py cuando no tenga mi pc y Dianita no se quede sin updates 
+// ========= Exportar JSON (solo lo veo yo) =========
 function exportJSON(){
   const iframe = $('#embedContainer')?.querySelector('iframe');
   const src = iframe?.getAttribute('src') || '';
@@ -261,12 +392,12 @@ function exportJSON(){
   URL.revokeObjectURL(a.href);
 }
 
-// 
+// ========= Arranque =========
 document.addEventListener('DOMContentLoaded', ()=>{
-  // Dianita solo vera contenido
+  // Dianita solo verá contenido
   if (VIEW_MODE) document.body.classList.add('viewer');
 
-  // Botones (solo lo puedo ver yo)
+  // Botones (solo los veo yo)
   $('#btnGen')?.addEventListener('click', ()=>{
     const url = $('#spotifyUrl')?.value.trim();
     if(!url) return;
@@ -282,6 +413,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
   } else if (VIEW_MODE) {
     renderFromTodayJson();  // Dianita entra y lo ve directo
   }
-
-  
 });
