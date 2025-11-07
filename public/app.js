@@ -412,5 +412,22 @@ document.addEventListener('DOMContentLoaded', ()=>{
     renderFromUrl(qp);
   } else if (VIEW_MODE) {
     renderFromTodayJson();  // Dianita entra y lo ve directo
+    
   }
+
+
+// Desgarrar la carta
+// No pude hacer que se desgarrara, sabes lo dificil que es hacer formas en css? sajkldajsd
+document.querySelectorAll('.envelope').forEach(env=>{
+  const toggle = ()=>{
+    const isOpen = env.classList.toggle('open');
+    env.setAttribute('aria-expanded', String(isOpen));
+  };
+  env.addEventListener('click', toggle);
+  env.addEventListener('keydown', e=>{
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+  });
+});
+
+
 });

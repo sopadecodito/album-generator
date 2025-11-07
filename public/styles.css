@@ -12,6 +12,7 @@
   --lr: 180px;            /* radio de luz base */
   --feather: 120px;    /* suavizado del borde */
   --dark: rgb(5, 2, 15);  /* oscuridad global */
+   --letter-max: 60vh; /* puedes cambiar a 70vh o 520px, etc. */
 }
 
 
@@ -563,3 +564,4 @@ h1, h2, h3, .artist{
   .nav-btn{ width:34px; height:34px; }
   .slide img{ max-height: 62vh; }
 }
+
