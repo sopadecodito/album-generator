@@ -608,3 +608,35 @@ h1, h2, h3, .artist{
   background: linear-gradient(#9aa6ff,#6c7cff);
   border-radius: 8px;
 }
+
+/* Brillo para la palabra DATA */
+.data-glow{
+  font-weight: 900;
+  letter-spacing: .5px;
+  background: linear-gradient(90deg,#9fffd7,#00ffc3,#9fffd7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow:
+    0 0 6px rgba(0,255,195,.55),
+    0 0 14px rgba(0,255,195,.35);
+  animation: dataPulse 2.2s ease-in-out infinite;
+  position: relative;
+}
+.data-glow::after{
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -0.14em; height: 2px;
+  background: radial-gradient(12px 6px at 50% 50%, rgba(0,255,195,.7), transparent 60%);
+  filter: blur(2px);
+  opacity: .8;
+}
+
+@keyframes dataPulse{
+  0%,100% { text-shadow: 0 0 6px rgba(0,255,195,.55), 0 0 14px rgba(0,255,195,.35); }
+  50%     { text-shadow: 0 0 10px rgba(0,255,195,.85), 0 0 22px rgba(0,255,195,.55); }
+}
+
+/* Respeta accesibilidad */
+@media (prefers-reduced-motion: reduce){
+  .data-glow{ animation: none; }
+}

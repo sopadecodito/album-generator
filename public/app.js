@@ -294,6 +294,18 @@ function makeCarousel(root){
   update();
 }
 
+function escapeHTML(s){
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+function highlightDATA(s){
+  // respeta saltos de línea y resalta solo la palabra DATA exacta
+  const safe = escapeHTML(s || '').replace(/\n/g,'<br>');
+  return safe.replace(/\bDATA\b/g, '<span class="data-glow">DATA</span>');
+}
+
 // ========= Render desde today.json (viewer) =========
 async function renderFromTodayJson(){
   try{
@@ -316,11 +328,16 @@ async function renderFromTodayJson(){
       embed.innerHTML = `<iframe src="${src}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
     }
 
+    
+
     // Paleta (no se pq no sirve)
     if (j.cover) { try { const cols = await extractPalette(j.cover, 5); applyPalette(cols); } catch {} }
 
+
+
+
     // Textos
-    $('#lyric').textContent = j.lyric_highlight || '';
+    $('#lyric').innerHTML = highlightDATA(j.lyric_highlight || '');
     $('#note').textContent  = j.message || '';
     $('#bibleRef').textContent = j.bible_ref || 'Pasaje';
     $('#bibleText').textContent = j.bible_text || '';
