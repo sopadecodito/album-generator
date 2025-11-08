@@ -396,19 +396,18 @@ h1, h2, h3, .artist{
 }   */
 
 
-/* === Fortnite chest vibe: verde brillante con pulso y sheen === */
 .chest-green{
   position: relative;
   border-radius: 18px;
   background:
     linear-gradient(180deg, rgba(22, 50, 28, 0.78), rgba(10, 28, 16, 0.66));
   /* Borde base más “neón” */
-  border: 2px solid rgba(120, 255, 170, 0.45);
+  border: 2px solid rgba(190, 15, 190, 0.45);
   /* Glow exterior y un poco de profundidad */
   box-shadow:
-    0 0 0 2px rgba(120,255,170,.25) inset,    
-    0 0 28px 6px rgba(120,255,170,.30),      
-    0 0 72px 18px rgba(120,255,170,.20),      
+    0 0 0 2px rgba(102, 65, 205, 0.25) inset,    
+    0 0 28px 6px rgba(160, 97, 228, 0.3),      
+    0 0 72px 18px rgba(119, 0, 203, 0.2),      
     0 8px 22px rgba(0,0,0,0.45);              /* sombra de tarjeta */
   overflow: hidden;
 }
@@ -420,9 +419,9 @@ h1, h2, h3, .artist{
   border-radius: inherit;
   pointer-events:none;
   background:
-    radial-gradient(160px 120px at 20% 0%, rgba(120,255,170,.28), transparent 60%),
-    radial-gradient(200px 140px at 92% 12%, rgba(80,255,170,.26), transparent 62%),
-    radial-gradient(260px 180px at 85% 95%, rgba(0,255,170,.22), transparent 60%);
+    radial-gradient(160px 120px at 20% 0%, rgba(89, 56, 255, 0.28), transparent 60%),
+    radial-gradient(200px 140px at 92% 12%, rgba(188, 44, 236, 0.26), transparent 62%),
+    radial-gradient(260px 180px at 85% 95%, rgba(157, 11, 255, 0.22), transparent 60%);
   filter: blur(8px);
   opacity: .95;
   animation: chestPulseStrong 2.4s ease-in-out infinite;
@@ -454,13 +453,13 @@ h1, h2, h3, .artist{
   0%,100%{
     opacity:.85;
     box-shadow:
-      0 0 36px 8px rgba(120,255,170,.30),
-      0 0 88px 20px rgba(120,255,170,.18);
+      0 0 36px 8px rgba(217, 120, 255, 0.3),
+      0 0 88px 20px rgba(137, 3, 155, 0.18);
   }
   50%{
     opacity:1;
     box-shadow:
-      0 0 54px 10px rgba(120,255,170,.42),
+      0 0 54px 10px rgba(210, 120, 255, 0.42),
       0 0 128px 26px rgba(120,255,170,.26);
   }
 }
