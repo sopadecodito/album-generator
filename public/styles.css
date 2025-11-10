@@ -428,19 +428,6 @@ h1, h2, h3, .artist{
 }
 
 
-.chest-green::after{
-  content:"";
-  position:absolute; inset:-30%;
-  background: conic-gradient(from 210deg,
-    transparent 0 75%,
-    rgba(255,255,255,0.18) 78%,
-    transparent 82% 100%);
-  transform: translateX(-30%) rotate(8deg);
-  animation: chestSheen 3.8s linear infinite;
-  mix-blend-mode: screen;
-  pointer-events:none;
-  opacity:.6;
-}
 
 
 .chest-green .embed-wrap,
@@ -639,4 +626,45 @@ h1, h2, h3, .artist{
 /* Respeta accesibilidad */
 @media (prefers-reduced-motion: reduce){
   .data-glow{ animation: none; }
+}
+
+
+/* Surprises let me know she cares */
+
+.hero-video {
+  position: relative;
+  width: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,.35);
+  background: rgba(255,255,255,.04);
+}
+
+.hero-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 56vh;         
+  object-fit: cover;
+}
+
+/* Botón “Abrir en Spotify” arriba a la derecha */
+.hero-video .open-spotify {
+  position: absolute;
+  top: 12px; right: 12px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(20,20,35,.55);
+  backdrop-filter: blur(6px);
+  font-size: 12px;
+  text-decoration: none;
+  color: #cfe7ff;
+  display: inline-flex; gap: 8px; align-items: center;
+  transition: transform .15s ease, background .2s ease;
+}
+.hero-video .open-spotify:hover { transform: translateY(-1px); background: rgba(20,20,35,.7); }
+
+/* Mobile: video vertical un poco más alto */
+@media (max-width: 640px) {
+  .hero-video video { max-height: 46vh; }
 }

@@ -1,16 +1,22 @@
 {
-  "title": "me jodi...",
-  "artist": "Tainy, Arcangel",
-  "date": "2017",
-  "cover": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02f885fb64a381318a1c9c14e4",
-  "spotify_embed": "https://open.spotify.com/embed/track/4trfOyEYrf0Ezx8LUDogU1?utm_source=generator",
-  "lyric_highlight": "Y yo que te pensaba tanto\nQue hasta te gaste el nombre\nPor la mañana por la tarde por la noche\nSimplemente te convertiste en mi almohada, siempre en mi cabeza\nAh, eres la DATA que tengo en mi memoria",
-  "message": "Esta canción resume lo que me pasa contigo\nQue te pienso tanto, que ya te gasté el nombre en mi cabeza\nQue no hay mañana, tarde o noche donde no aparezcas,\nporque te volviste parte de mí, como un pensamiento que no se apaga\nEres mi calma, mi desvelo y mi recuerdo favorito\nNo sé si se pueda medir cuánto pienso en ti,\npero si mi mente fuera este album, tu serias la canción que mas suena<3",
-  "bible_ref": "Cantares 3:1-2",
-  "bible_text": "Por las noches busqué al amor de mi alma;\nlo busqué y no lo hallé.\nMe levantaré ahora y rodearé la ciudad,\nbuscaré al amor de mi alma.",
+  "title": "ROCKETPOWERS",
+  "artist": "DILLOM, SARAMALACARA",
+  "date": "2021",
+  "cover": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e020f9f5a5e9ed058b856ac42ab",
+  "spotify_embed": "https://open.spotify.com/embed/track/3z8rcgJdQo2g2G4VijeLpl?utm_source=generator",
+  "lyric_highlight": "Shorty, let me know si nos vamos o no\nSi querés me quedo ahora\nPero después me voy, tengo un par de show'\nLa gente me espera afuera\nMás despacio, wait me\nAfuera está raining\nFuck that, voy a donde estés, solo quiero estar bien con vos",
+  "message": "A veces la vida se siente como una cambio constante, nuevas ciudades, nuevas caras, nuevas responsabilidades.\nY entre todo ese ruido y movimiento, tú eres mi punto de calma\nEsa línea de 'Solo quiero estar bien con vos' es real porque cuando estoy contigo, todo lo demás no me importa, 'Time stood still' diria tu viejo Oliver Sykes en la cancion Sleepwalking.\nNo importa cuántas cosas pasen, ni cuántas veces mi vida cambie de rumbo,\nporque si estás tú, ya llegué a mi destino\nEres ese lugar donde todo tiene sentido, incluso cuando nada más lo tiene",
+  "bible_ref": "Significado sacado de letras.com",
+  "bible_text": "En la canción 'Rocketpowers' de DILLOM, se nos presenta una atmósfera de aventura y emoción, donde nos describen como potencias de cohete listas para despegar hacia nuevas experiencias en una ciudad distinta. El protagonista se siente apurado por llegar a su destino, pero a la vez busca tranquilidad y conexión con alguien especial.\nSe menciona que viven intensamente y desafían las normas. A pesar de las diferencias y las distracciones, el deseo de cercanía y entendimiento persiste en la narrativa.\nSe narran momentos de diversión y desconexión, donde se comparten gustos y se disfruta de la compañía mutua. Se mencionan experiencias compartidas, desde la diversión en un trío hasta la exploración de diferentes horizontes. La noche se presenta como un lienzo en blanco lleno de posibilidades, donde la música, la emoción y las decisiones impulsivas juegan un papel importante.\nEn los versos se mezclan referencias a la cultura pop y a la cultura urbana, creando una mezcla única de nostalgia y frescura. La letra transmite una sensación de libertad, desenfreno y deseo de estar presente en cada momento, sin importar las consecuencias.\nEs una canción que invita a disfrutar del presente, a vivir al límite y a buscar conexiones auténticas en medio del caos y la diversión. Es un viaje emocionante a través de la noche, donde la música y la compañía son las protagonistas de una historia llena de energía y vitalidad.",
   "video": {
-    "src": "media/not.mp4",              
-    "poster": "",                        
+    "src": "media/ROCKETPOWERS.mp4",
+    "poster": "",
+    "autoplay": false,
+    "muted": false,
+    "loop": false
+  },
+  "hero_video":{
+    "src": "media/ROCKETPOWERS.mp4",
     "autoplay": false,
     "muted": false,
     "loop": false
@@ -27,4 +33,3 @@
   ]
 
 }
-

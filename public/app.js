@@ -99,6 +99,61 @@ function extractSpotifySrc(html){
   }catch{ return null; }
 }
 
+function deriveSpotifyUrl(entry){
+  if(!entry) return null;
+  if(entry.spotify_url) return entry.spotify_url;
+  let src = entry.spotify_embed || null;
+  if(!src && entry.spotify_embed_html) src = extractSpotifySrc(entry.spotify_embed_html);
+  if(!src) return null;
+  try{
+    const url = new URL(src);
+    if (url.pathname.startsWith('/embed/')) {
+      url.pathname = url.pathname.replace('/embed/', '/');
+    }
+    url.search = '';
+    return url.toString();
+  }catch{
+    return src.includes('/embed/') ? src.replace('/embed/','/') : src;
+  }
+}
+
+function buildHeroVideo(container, hero = {}, spotifyUrl){
+  if(!container || !hero || !hero.src) return false;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'hero-video';
+
+  if (spotifyUrl) {
+    const a = document.createElement('a');
+    a.className = 'open-spotify';
+    a.href = spotifyUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 6.63 5.373 12 12 12s12-5.37 12-12C24 5.373 18.627 0 12 0Zm5.49 17.31a.86.86 0 0 1-1.18.28c-3.23-1.97-7.29-2.42-12.09-1.34a.86.86 0 0 1-.38-1.68c5.19-1.17 9.67-.65 13.22 1.47.41.25.54.8.23 1.27Zm1.62-3.01a1.08 1.08 0 0 1-1.47.35c-3.7-2.25-9.35-2.9-13.73-1.61a1.08 1.08 0 1 1-.6-2.08c4.94-1.42 11.17-.69 15.39 1.85.51.31.67.98.41 1.49Zm.15-3.24c-4.16-2.47-11.06-2.7-15.04-1.51a1.29 1.29 0 0 1-.73-2.47c4.57-1.36 12.23-1.08 17.03 1.74a1.29 1.29 0 0 1-1.26 2.24Z"/>
+      </svg>
+      Abrir en Spotify
+    `;
+    wrap.appendChild(a);
+  }
+
+  const video = document.createElement('video');
+  video.controls = true;
+  video.playsInline = true;
+  video.preload = 'metadata';
+  video.src = hero.src;
+  if (hero.poster) video.poster = hero.poster;
+  if (hero.autoplay) video.setAttribute('autoplay', '');
+  if (hero.muted || hero.autoplay) video.muted = true;
+  if (hero.loop) video.loop = true;
+
+  wrap.appendChild(video);
+  container.innerHTML = '';
+  container.appendChild(wrap);
+  return true;
+}
+
 // ========= Render desde URL (modo admin) =========
 async function renderFromUrl(spotifyUrl){
   const parsed = parseSpotify(spotifyUrl);
@@ -110,8 +165,74 @@ async function renderFromUrl(spotifyUrl){
   const art = $('#artistLink'); art.textContent = artist || '—'; art.href = `https://open.spotify.com/search/${encodeURIComponent(artist||'')}`;
 
   const cover = o.thumbnail_url; if (cover) $('#cover').src = cover;
-  const embedContainer = $('#embedContainer');
-  const cleanHtml = o.html || (parsed ? `<iframe src="https://open.spotify.com/embed/${parsed.type}/${parsed.id}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>` : "");
+  /*const embedContainer = $('#embedContainer');
+  /*const cleanHtml = o.html || (parsed ? `<iframe src="https://open.spotify.com/embed/${parsed.type}/${parsed.id}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>` : ""); */
+  const embed = $('#embedContainer'); 
+embed.innerHTML = '';
+
+function buildHeroVideo({ container, src, poster, autoplay=false, muted=false, loop=false, spotifyUrl }) {
+  const wrap = document.createElement('div');
+  wrap.className = 'hero-video';
+
+  // Botón abrir en Spotify (opcional)
+  if (spotifyUrl) {
+    const a = document.createElement('a');
+    a.className = 'open-spotify';
+    a.href = spotifyUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 6.63 5.373 12 12 12s12-5.37 12-12C24 5.373 18.627 0 12 0Zm5.49 17.31a.86.86 0 0 1-1.18.28c-3.23-1.97-7.29-2.42-12.09-1.34a.86.86 0 0 1-.38-1.68c5.19-1.17 9.67-.65 13.22 1.47.41.25.54.8.23 1.27Zm1.62-3.01a1.08 1.08 0 0 1-1.47.35c-3.7-2.25-9.35-2.9-13.73-1.61a1.08 1.08 0 1 1-.6-2.08c4.94-1.42 11.17-.69 15.39 1.85.51.31.67.98.41 1.49Zm.15-3.24c-4.16-2.47-11.06-2.7-15.04-1.51a1.29 1.29 0 0 1-.73-2.47c4.57-1.36 12.23-1.08 17.03 1.74a1.29 1.29 0 0 1-1.26 2.24Z"/>
+      </svg>
+      Abrir en Spotify
+    `;
+    wrap.appendChild(a);
+  }
+
+  const v = document.createElement('video');
+  v.controls = true;
+  v.playsInline = true;               // iOS inline
+  v.preload = 'metadata';
+  v.src = src;
+  if (poster) v.poster = poster;
+  if (autoplay) v.setAttribute('autoplay', '');
+  if (muted) v.muted = true;          // autoplay móvil requiere muted
+  if (loop) v.loop = true;
+
+  wrap.appendChild(v);
+  container.innerHTML = '';
+  container.appendChild(wrap);
+}
+
+let hero = j.hero_video || j.video;   // usa el que tengas
+if (hero && hero.src) {
+  buildHeroVideo({
+    container: embed,
+    src: hero.src,
+    poster: hero.poster,
+    autoplay: !!hero.autoplay,
+    muted: !!hero.muted,
+    loop: !!hero.loop,
+    spotifyUrl: j.spotify_url || (j.spotify_embed ? j.spotify_embed.replace('/embed/','/track/') : null)
+  });
+} else if (j.preview_audio) {
+  // Si ya tenías un buildAudioPlayer, úsalo aquí como fallback
+  buildAudioPlayer({
+    container: embed,
+    src: j.preview_audio,
+    title: j.title, artist: j.artist, cover: j.cover,
+    spotifyUrl: j.spotify_url
+  });
+} else {
+  // Último recurso: deja el iframe de Spotify si existiera
+  let src = j.spotify_embed ? j.spotify_embed : null;
+  if (!src && j.spotify_embed_html) src = extractSpotifySrc(j.spotify_embed_html);
+  if (src) {
+    embed.innerHTML = `<iframe src="${src}" width="100%" height="152" frameborder="0"
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+  }
+}
   embedContainer.innerHTML = cleanHtml;
 
   $('#result').classList.remove('hidden');
@@ -322,10 +443,15 @@ async function renderFromTodayJson(){
 
     // Player
     const embed = $('#embedContainer'); embed.innerHTML = '';
-    let src = j.spotify_embed ? j.spotify_embed : null;
-    if (!src && j.spotify_embed_html) src = extractSpotifySrc(j.spotify_embed_html);
-    if (src) {
-      embed.innerHTML = `<iframe src="${src}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+    const heroVideo = j.hero_video || j.video || null;
+    const spotifyUrl = deriveSpotifyUrl(j);
+    const hasVideo = buildHeroVideo(embed, heroVideo, spotifyUrl);
+    if (!hasVideo) {
+      let src = j.spotify_embed ? j.spotify_embed : null;
+      if (!src && j.spotify_embed_html) src = extractSpotifySrc(j.spotify_embed_html);
+      if (src) {
+        embed.innerHTML = `<iframe src="${src}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+      }
     }
 
     
