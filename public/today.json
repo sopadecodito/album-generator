@@ -5,12 +5,12 @@
   "cover": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e026da502e35a7a3e48de2b0f74",
   "spotify_embed": "https://open.spotify.com/intl-es/track/2m1hi0nfMR9vdGC8UcrnwU?si=4445a28c1bb74f61",
   "lyric_highlight": "Late night, come home\nWork sucks, I know\nShe left me roses by the stairs\nSurprises let me know she cares",
-  "message": "A veces olvido que el amor no siempre está en las grandes palabras, sino en los pequeños gestos (esas “small things” que haces sin darte cuenta)\nComo cuando me hablas con cariño, o cuando te acuerdas de por algo super equis\nEres esas rosas en las escaleras, la sorpresa que me recuerda que sí te importo\ny que incluso cuando el día se siente apagado siempre hay algo tuyo que me acompaña",
+  "message": "A veces olvido que el amor no siempre está en las grandes palabras, sino en los pequeños gestos (esas “small things” que haces sin darte cuenta)\nComo cuando me hablas con cariño, o cuando te acuerdas de mi por algo super equis\nEres esas rosas en las escaleras, la sorpresa que me recuerda que sí te importo\ny que incluso cuando el día se siente apagado siempre hay algo tuyo que me acompaña",
   "bible_ref": "1 Corintios 13:4-7",
   "bible_text": "El amor es paciente, es bondadoso.\nEl amor no es envidioso ni jactancioso ni orgulloso.\nNo se comporta con rudeza, no busca lo suyo,\nno se irrita ni guarda rencor.\nTodo lo disculpa, todo lo cree, todo lo espera, todo lo soporta.",
   "video": {
     "src": "media/output-1080p.mp4",
-    "poster": "",
+    "poster": "media/hq720.jpg",
     "autoplay": false,
     "muted": false,
     "loop": false
