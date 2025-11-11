@@ -111,8 +111,8 @@ body.viewer .toolbar{display:none}
   display:flex; justify-content:space-between; gap:12px; padding:.28rem 0;
   border-bottom:1px dashed rgba(255,255,255,.08); color:var(--text)
 }
-#tracks li:last-child{border-bottom:0}
 .muted{color:var(--muted); margin-top:.6rem; display:block}
+.small{font-size:.85rem}
 
 .hidden{display:none}
 
@@ -215,6 +215,85 @@ h1, h2, h3, .artist{
 
   /* Tracklist al final y ancho completo */
   .tracks{ order: 99; }
+}
+
+/* ======== Botones rápidos / feelings ======== */
+.feelings-card{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.feelings-head{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.feelings-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+  gap:10px;
+}
+.feeling-btn{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  padding:12px 14px;
+  background:rgba(255,255,255,.08);
+  color:var(--text);
+  font-weight:700;
+  font-family:inherit;
+  cursor:pointer;
+  transition:transform .2s ease, border-color .2s ease, background .2s ease;
+}
+.feeling-btn:hover:not(:disabled),
+.feeling-btn:focus-visible{
+  border-color:var(--accent);
+  background:rgba(255,255,255,.15);
+  transform:translateY(-1px);
+}
+.feeling-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.feeling-btn.sending{
+  opacity:.65;
+  pointer-events:none;
+}
+
+.feeling-toast{
+  position:fixed;
+  left:50%;
+  bottom:24px;
+  transform:translate(-50%,20px);
+  padding:14px 18px;
+  border-radius:16px;
+  background:rgba(8,5,18,.92);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 24px 55px rgba(0,0,0,.55);
+  color:var(--text);
+  font-weight:700;
+  z-index:80;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;
+}
+.feeling-toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+@media (max-width:768px){
+  .feelings-grid{
+    grid-template-columns:repeat(auto-fit, minmax(120px,1fr));
+  }
+  .feeling-toast{
+    width:calc(100% - 36px);
+    left:18px;
+    right:18px;
+    transform:translateY(20px);
+  }
+  .feeling-toast.show{
+    transform:translateY(0);
+  }
 }
 
 .tracks h3,

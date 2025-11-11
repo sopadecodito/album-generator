@@ -19,7 +19,11 @@
   <script>
     
     window.SPOTIFY_TOKEN_ENDPOINT = "/api/spotify-token";
+    window.SUPABASE_URL = window.SUPABASE_URL || "https://aofarpeznkxfdudfntwb.supabase.co";
+    window.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvZmFycGV6bmt4ZmR1ZGZudHdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4OTY4OTksImV4cCI6MjA3ODQ3Mjg5OX0.hWIt9iWemg3N4s9Cq4JSzB0cNT4rDb5ZIYEmnf_VPBk";
+    window.SUPABASE_FEELINGS_TABLE = window.SUPABASE_FEELINGS_TABLE || "feeling_signals";
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js" defer crossorigin="anonymous"></script>
 </head>
 <body>
   <main class="page">
@@ -67,6 +71,14 @@
       <article class="card prose">  
          <h2>Mi mensaje</h2> 
           <p id="note"></p>
+        </article>
+
+        <article class="card prose feelings-card" id="feelingPanel">
+          <div class="feelings-head">
+            <h2>Botones rápidos</h2>
+            <p class="muted small" id="feelingStatus"></p>
+          </div>
+          <div class="feelings-grid" id="feelingsGrid" role="group" aria-label="Mensajes rápidos"></div>
         </article>
         
 
@@ -121,8 +133,10 @@ voy a cansar de repetirtelo, hace un rato me puse a pensar mucho en nosotros, y 
     </section>
 
 
-    
+  
   </main>
+
+<div id="feelingToast" class="feeling-toast hidden" role="status" aria-live="polite"></div>
 
 <script src="app.js?v=8" defer></script>
 

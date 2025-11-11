@@ -6,6 +6,23 @@ if (typeof window.SPOTIFY_TOKEN_ENDPOINT === "undefined") {
 const params = new URLSearchParams(location.search);
 const VIEW_MODE = params.get("view") !== "0";
 
+const FEELING_BUTTONS = [
+  { id: 'miss', label: 'Te extraño' },
+  { id: 'sorry', label: 'Hablemos' },
+  { id: 'angry', label: 'Me caes mal pero te amo' },
+  { id: 'sad', label: 'Estoy triste' }
+];
+const FEELINGS_TABLE = window.SUPABASE_FEELINGS_TABLE || 'feeling_signals';
+const feelingsState = {
+  client: null,
+  channel: null,
+  buttons: [],
+  statusNode: null,
+  toastNode: null,
+  toastTimer: null,
+  ip: null
+};
+
 // ========= Helpers =========
 const $ = (sel) => document.querySelector(sel);
 const getParam = (k) => new URLSearchParams(location.search).get(k);
@@ -115,6 +132,154 @@ function deriveSpotifyUrl(entry){
   }catch{
     return src.includes('/embed/') ? src.replace('/embed/','/') : src;
   }
+}
+
+// ========= Botones rápidos (Supabase) =========
+function setupFeelingUI(){
+  const grid = document.querySelector('#feelingsGrid');
+  const status = document.querySelector('#feelingStatus');
+  const toast = document.querySelector('#feelingToast');
+  if(!grid || !status || !toast) return false;
+
+  grid.innerHTML = '';
+  feelingsState.buttons = FEELING_BUTTONS.map(cfg=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'feeling-btn';
+    btn.dataset.code = cfg.id;
+    btn.textContent = cfg.label;
+    btn.disabled = true;
+    btn.addEventListener('click', ()=> emitFeeling(cfg.id, btn));
+    grid.appendChild(btn);
+    return btn;
+  });
+
+  feelingsState.statusNode = status;
+  feelingsState.toastNode = toast;
+  status.textContent = 'Configura Supabase para activarlos.';
+  return true;
+}
+
+function setFeelingStatus(text){
+  if (feelingsState.statusNode) feelingsState.statusNode.textContent = text;
+}
+function setFeelingButtonsEnabled(enabled){
+  feelingsState.buttons.forEach(btn => { btn.disabled = !enabled; });
+}
+
+function showFeelingToast(message){
+  const toast = feelingsState.toastNode;
+  if(!toast) return;
+  toast.textContent = message;
+  toast.classList.remove('hidden');
+  toast.classList.add('show');
+  clearTimeout(feelingsState.toastTimer);
+  feelingsState.toastTimer = setTimeout(()=>{
+    toast.classList.remove('show');
+  }, 4200);
+}
+
+async function emitFeeling(code, button){
+  if (!feelingsState.client){
+    showFeelingToast('Activa Supabase para enviarlos.');
+    return;
+  }
+  const def = FEELING_BUTTONS.find(b=>b.id === code);
+  if (button){
+    button.classList.add('sending');
+    button.disabled = true;
+  }
+
+  try{
+    const { error } = await feelingsState.client
+      .from(FEELINGS_TABLE)
+      .insert({
+        code,
+        message: def?.label || code,
+        sender_ip: feelingsState.ip || 'unknown'
+      });
+    if (error) throw error;
+    setFeelingStatus('Enviado ✨');
+  }catch(err){
+    console.warn('Feeling send error', err);
+    showFeelingToast('No se pudo enviar 😔');
+  }finally{
+    if (button){
+      button.classList.remove('sending');
+      button.disabled = false;
+    }
+  }
+}
+
+async function fetchPublicIp(){
+  try{
+    const res = await fetch('https://api.ipify.org?format=json', { cache:'no-store' });
+    if(!res.ok) throw new Error('ip fail');
+    const j = await res.json();
+    return j.ip || 'unknown';
+  }catch{
+    return 'unknown';
+  }
+}
+
+function handleIncomingFeeling(row){
+  if(!row) return;
+  if (row.sender_ip && feelingsState.ip && row.sender_ip === feelingsState.ip) return;
+  const text = row.message || 'Pensé en ti';
+  showFeelingToast(text);
+  setFeelingStatus('Recibiste un botoncito 💌');
+}
+
+function subscribeToFeelings(){
+  if (!feelingsState.client) return;
+  feelingsState.channel?.unsubscribe?.();
+  feelingsState.channel = feelingsState.client
+    .channel(`public:${FEELINGS_TABLE}`)
+    .on('postgres_changes', { event:'INSERT', schema:'public', table: FEELINGS_TABLE }, payload=>{
+      handleIncomingFeeling(payload?.new);
+    })
+    .subscribe(status=>{
+      if (status === 'SUBSCRIBED'){
+        setFeelingButtonsEnabled(true);
+        setFeelingStatus('Usalos dependiendo como te sientas');
+      } else if (status === 'CHANNEL_ERROR'){
+        setFeelingStatus('Error al escuchar la tabla. Reintentando...');
+        setFeelingButtonsEnabled(false);
+        setTimeout(()=> subscribeToFeelings(), 2000);
+      } else if (status === 'TIMED_OUT' || status === 'CLOSED'){
+        setFeelingStatus('Conexión perdida, intentando reconectar...');
+        setFeelingButtonsEnabled(false);
+        setTimeout(()=> subscribeToFeelings(), 2000);
+      }
+    });
+}
+
+async function initFeelingSignals(){
+  const hasUi = setupFeelingUI();
+  if(!hasUi) return;
+
+  const hasConfig = Boolean(
+    window.SUPABASE_URL &&
+    window.SUPABASE_ANON_KEY &&
+    window.supabase &&
+    typeof window.supabase.createClient === 'function'
+  );
+  if (!hasConfig){
+    setFeelingStatus('Define SUPABASE_URL y SUPABASE_ANON_KEY.');
+    return;
+  }
+  try{
+    feelingsState.client = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  }catch(err){
+    console.warn('Supabase init fail', err);
+    setFeelingStatus('Supabase no disponible 😢');
+    return;
+  }
+
+  setFeelingButtonsEnabled(false);
+  setFeelingStatus('Sincronizando...');
+  fetchPublicIp().then(ip => { feelingsState.ip = ip || 'unknown'; });
+  subscribeToFeelings();
 }
 
 function buildHeroVideo(container, hero = {}, spotifyUrl){
@@ -539,6 +704,7 @@ function exportJSON(){
 document.addEventListener('DOMContentLoaded', ()=>{
   // Dianita solo verá contenido
   if (VIEW_MODE) document.body.classList.add('viewer');
+  initFeelingSignals();
 
   // Botones (solo los veo yo)
   $('#btnGen')?.addEventListener('click', ()=>{
