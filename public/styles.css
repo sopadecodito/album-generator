@@ -228,6 +228,34 @@ h1, h2, h3, .artist{
   flex-direction:column;
   gap:4px;
 }
+.feelings-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.btn-notif{
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:12px;
+  padding:8px 14px;
+  background:rgba(255,255,255,.08);
+  color:var(--text);
+  font-weight:700;
+  font-family:inherit;
+  cursor:pointer;
+  transition:background .2s ease, border-color .2s ease;
+}
+.btn-notif:hover:not(:disabled),
+.btn-notif:focus-visible{
+  background:rgba(255,255,255,.16);
+  border-color:var(--accent);
+}
+.btn-notif:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+.btn-notif.hidden{display:none;}
 .feelings-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));

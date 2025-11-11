@@ -75,8 +75,12 @@
 
         <article class="card prose feelings-card" id="feelingPanel">
           <div class="feelings-head">
-            <h2>Botones rápidos</h2>
+            <div class="feelings-title">
+              <h2>Botones rápidos</h2>
+              <button type="button" class="btn-notif hidden" id="notifBtn">Activar notificaciones</button>
+            </div>
             <p class="muted small" id="feelingStatus"></p>
+            <p class="muted small" id="notificationStatus">Activa las notificaciones del navegador para ver alertas al instante.</p>
           </div>
           <div class="feelings-grid" id="feelingsGrid" role="group" aria-label="Mensajes rápidos"></div>
         </article>

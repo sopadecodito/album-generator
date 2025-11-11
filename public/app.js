@@ -22,6 +22,12 @@ const feelingsState = {
   toastTimer: null,
   ip: null
 };
+const notificationState = {
+  supported: typeof Notification !== 'undefined',
+  button: null,
+  statusNode: null,
+  requesting: false
+};
 
 // ========= Helpers =========
 const $ = (sel) => document.querySelector(sel);
@@ -165,6 +171,80 @@ function setFeelingStatus(text){
 }
 function setFeelingButtonsEnabled(enabled){
   feelingsState.buttons.forEach(btn => { btn.disabled = !enabled; });
+}
+
+function updateNotificationStatus(text){
+  if (notificationState.statusNode) notificationState.statusNode.textContent = text;
+}
+
+function syncNotificationPermission(forcedPermission){
+  const btn = notificationState.button;
+  if (!notificationState.statusNode) return;
+
+  if (!notificationState.supported){
+    updateNotificationStatus('Tu navegador no soporta notificaciones.');
+    btn?.classList.add('hidden');
+    return;
+  }
+
+  const permission = forcedPermission || Notification.permission;
+
+  if (permission === 'granted'){
+    updateNotificationStatus('Notificaciones activadas ✅');
+    if (btn){
+      btn.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Activadas';
+    }
+  } else if (permission === 'denied'){
+    updateNotificationStatus('Están bloqueadas, habilítalas desde los ajustes del navegador.');
+    if (btn){
+      btn.classList.remove('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Bloqueadas';
+    }
+  } else {
+    updateNotificationStatus('Activa las notificaciones para que no se te pase ningún botoncito.');
+    if (btn){
+      btn.classList.remove('hidden');
+      btn.disabled = notificationState.requesting;
+      btn.textContent = notificationState.requesting ? 'Solicitando…' : 'Activar notificaciones';
+    }
+  }
+}
+
+async function requestNotificationPermission(){
+  if (!notificationState.supported){
+    updateNotificationStatus('Tu navegador no soporta notificaciones.');
+    return;
+  }
+  if (Notification.permission === 'granted') return;
+  if (notificationState.requesting) return;
+  notificationState.requesting = true;
+  syncNotificationPermission('default');
+  try{
+    const result = await Notification.requestPermission();
+    notificationState.requesting = false;
+    syncNotificationPermission(result);
+  }catch(err){
+    notificationState.requesting = false;
+    console.warn('Notification permission error', err);
+    updateNotificationStatus('No se pudo solicitar el permiso, intenta de nuevo.');
+    if (notificationState.button){
+      notificationState.button.disabled = false;
+      notificationState.button.textContent = 'Reintentar';
+    }
+  }
+}
+
+function initNotificationGuard(){
+  const btn = document.querySelector('#notifBtn');
+  const status = document.querySelector('#notificationStatus');
+  if(!btn || !status) return;
+  notificationState.button = btn;
+  notificationState.statusNode = status;
+  btn.addEventListener('click', requestNotificationPermission);
+  syncNotificationPermission();
 }
 
 function showFeelingToast(message){
@@ -704,6 +784,7 @@ function exportJSON(){
 document.addEventListener('DOMContentLoaded', ()=>{
   // Dianita solo verá contenido
   if (VIEW_MODE) document.body.classList.add('viewer');
+  initNotificationGuard();
   initFeelingSignals();
 
   // Botones (solo los veo yo)
