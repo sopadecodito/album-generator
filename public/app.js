@@ -999,7 +999,8 @@ async function renderFromTodayJson(){
     // Textos
     $('#lyric').innerHTML = highlightDATA(j.lyric_highlight || '');
     $('#note').textContent  = j.message || '';
-    $('#bibleRef').textContent = j.bible_ref || 'Pasaje';
+    //$('#bibleRef').textContent = j.bible_ref || 'Pasaje';
+    $('#bibleRef').textContent = j.bible_ref || '';
     $('#bibleText').textContent = j.bible_text || '';
 
     // Extras
