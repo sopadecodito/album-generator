@@ -637,7 +637,7 @@ function buildHeroVideo({ container, src, poster, autoplay=false, muted=false, l
     a.className = 'open-spotify';
     a.href = spotifyUrl;
     a.target = '_blank';
-    a.rel = 'noopener';
+    a.rel = 'noopener'; // actualizado
     a.innerHTML = `
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M12 0C5.373 0 0 5.373 0 12c0 6.63 5.373 12 12 12s12-5.37 12-12C24 5.373 18.627 0 12 0Zm5.49 17.31a.86.86 0 0 1-1.18.28c-3.23-1.97-7.29-2.42-12.09-1.34a.86.86 0 0 1-.38-1.68c5.19-1.17 9.67-.65 13.22 1.47.41.25.54.8.23 1.27Zm1.62-3.01a1.08 1.08 0 0 1-1.47.35c-3.7-2.25-9.35-2.9-13.73-1.61a1.08 1.08 0 1 1-.6-2.08c4.94-1.42 11.17-.69 15.39 1.85.51.31.67.98.41 1.49Zm.15-3.24c-4.16-2.47-11.06-2.7-15.04-1.51a1.29 1.29 0 0 1-.73-2.47c4.57-1.36 12.23-1.08 17.03 1.74a1.29 1.29 0 0 1-1.26 2.24Z"/>
