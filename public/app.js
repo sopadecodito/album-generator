@@ -26,7 +26,8 @@ const notificationState = {
   supported: typeof Notification !== 'undefined',
   button: null,
   statusNode: null,
-  requesting: false
+  requesting: false,
+  audioCtx: null
 };
 
 // ========= Helpers =========
@@ -247,6 +248,55 @@ function initNotificationGuard(){
   syncNotificationPermission();
 }
 
+function ensureAudioContext(){
+  if (notificationState.audioCtx) return notificationState.audioCtx;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return null;
+  notificationState.audioCtx = new AudioCtx();
+  return notificationState.audioCtx;
+}
+
+function playNotificationSound(){
+  try{
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(740, now);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.2);
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.25, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.8);
+  }catch(err){
+    console.warn('Notification sound error', err);
+  }
+}
+
+function fireSystemNotification(body){
+  if (!notificationState.supported) return;
+  if (Notification.permission !== 'granted') return;
+  try{
+    new Notification('Nuevo botoncito 💌', {
+      body,
+      icon: '/favicon.gif',
+      badge: '/favicon.gif',
+      tag: 'feeling-signal'
+    });
+  }catch(err){
+    console.warn('Notification show error', err);
+  }
+}
+
 function showFeelingToast(message){
   const toast = feelingsState.toastNode;
   if(!toast) return;
@@ -307,6 +357,8 @@ function handleIncomingFeeling(row){
   if (row.sender_ip && feelingsState.ip && row.sender_ip === feelingsState.ip) return;
   const text = row.message || 'Pensé en ti';
   showFeelingToast(text);
+  playNotificationSound();
+  fireSystemNotification(text);
   setFeelingStatus('Recibiste un botoncito 💌');
 }
 
