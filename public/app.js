@@ -20,7 +20,10 @@ const feelingsState = {
   statusNode: null,
   toastNode: null,
   toastTimer: null,
-  ip: null
+  ip: null,
+  delivered: new Set(),
+  lastCreatedAt: null,
+  pollTimer: null
 };
 const IS_SECURE_CONTEXT = window.isSecureContext || ['localhost','127.0.0.1','::1'].includes(location.hostname);
 const notificationState = {
@@ -378,6 +381,16 @@ async function fetchPublicIp(){
 
 function handleIncomingFeeling(row){
   if(!row) return;
+  const key = row.id || `${row.sender_ip || 'unk'}-${row.created_at || Math.random()}`;
+  if (key && feelingsState.delivered.has(key)) return;
+  if (key){
+    feelingsState.delivered.add(key);
+    if (feelingsState.delivered.size > 200){
+      const firstKey = feelingsState.delivered.values().next().value;
+      feelingsState.delivered.delete(firstKey);
+    }
+  }
+  if (row.created_at) feelingsState.lastCreatedAt = row.created_at;
   const senderIp = row.sender_ip;
   const localIp = feelingsState.ip;
   const bothKnown = senderIp && localIp && senderIp !== 'unknown' && localIp !== 'unknown';
@@ -411,6 +424,7 @@ function subscribeToFeelings(){
         setTimeout(()=> subscribeToFeelings(), 2000);
       }
     });
+  startFeelingPolling();
 }
 
 async function initFeelingSignals(){
@@ -439,6 +453,45 @@ async function initFeelingSignals(){
   setFeelingStatus('Sincronizando...');
   fetchPublicIp().then(ip => { feelingsState.ip = ip || 'unknown'; });
   subscribeToFeelings();
+}
+
+function stopFeelingPolling(){
+  if (feelingsState.pollTimer){
+    clearInterval(feelingsState.pollTimer);
+    feelingsState.pollTimer = null;
+  }
+}
+
+function startFeelingPolling(){
+  stopFeelingPolling();
+  if (!feelingsState.client) return;
+  const poll = async ()=>{
+    try{
+      let query = feelingsState.client
+        .from(FEELINGS_TABLE)
+        .select('*')
+        .order('created_at', { ascending: true })
+        .limit(10);
+      if (feelingsState.lastCreatedAt){
+        query = query.gt('created_at', feelingsState.lastCreatedAt);
+      }else{
+        const hourAgo = new Date(Date.now() - 3600 * 1000).toISOString();
+        query = query.gt('created_at', hourAgo);
+      }
+      const { data, error } = await query;
+      if (error){
+        console.warn('Polling feelings fail', error);
+        return;
+      }
+      if (Array.isArray(data)){
+        data.forEach(handleIncomingFeeling);
+      }
+    }catch(err){
+      console.warn('Polling feelings err', err);
+    }
+  };
+  poll();
+  feelingsState.pollTimer = setInterval(poll, 6000);
 }
 
 function buildHeroVideo(container, hero = {}, spotifyUrl){
