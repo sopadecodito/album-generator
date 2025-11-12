@@ -23,6 +23,7 @@ const feelingsState = {
   ip: null,
   delivered: new Set(),
   lastCreatedAt: null,
+  sessionStartedAt: null,
   pollTimer: null
 };
 const IS_SECURE_CONTEXT = window.isSecureContext || ['localhost','127.0.0.1','::1'].includes(location.hostname);
@@ -381,6 +382,10 @@ async function fetchPublicIp(){
 
 function handleIncomingFeeling(row){
   if(!row) return;
+  const createdAt = row.created_at || null;
+  if (feelingsState.sessionStartedAt && createdAt && createdAt < feelingsState.sessionStartedAt) {
+    return;
+  }
   const key = row.id || `${row.sender_ip || 'unk'}-${row.created_at || Math.random()}`;
   if (key && feelingsState.delivered.has(key)) return;
   if (key){
@@ -390,7 +395,11 @@ function handleIncomingFeeling(row){
       feelingsState.delivered.delete(firstKey);
     }
   }
-  if (row.created_at) feelingsState.lastCreatedAt = row.created_at;
+  if (createdAt){
+    if (!feelingsState.lastCreatedAt || createdAt > feelingsState.lastCreatedAt) {
+      feelingsState.lastCreatedAt = createdAt;
+    }
+  }
   const senderIp = row.sender_ip;
   const localIp = feelingsState.ip;
   const bothKnown = senderIp && localIp && senderIp !== 'unknown' && localIp !== 'unknown';
@@ -398,7 +407,9 @@ function handleIncomingFeeling(row){
   const text = row.message || 'Pensé en ti';
   showFeelingToast(text);
   playNotificationSound();
-  fireSystemNotification(text);
+  if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+    fireSystemNotification(text);
+  }
   setFeelingStatus('Recibiste un botoncito 💌');
 }
 
@@ -449,6 +460,11 @@ async function initFeelingSignals(){
     return;
   }
 
+  stopFeelingPolling();
+  feelingsState.delivered.clear();
+  feelingsState.sessionStartedAt = new Date().toISOString();
+  feelingsState.lastCreatedAt = feelingsState.sessionStartedAt;
+
   setFeelingButtonsEnabled(false);
   setFeelingStatus('Sincronizando...');
   fetchPublicIp().then(ip => { feelingsState.ip = ip || 'unknown'; });
@@ -471,9 +487,10 @@ function startFeelingPolling(){
         .from(FEELINGS_TABLE)
         .select('*')
         .order('created_at', { ascending: true })
-        .limit(10);
-      if (feelingsState.lastCreatedAt){
-        query = query.gt('created_at', feelingsState.lastCreatedAt);
+        .limit(20);
+      const since = feelingsState.lastCreatedAt || feelingsState.sessionStartedAt || null;
+      if (since){
+        query = query.gt('created_at', since);
       }else{
         const hourAgo = new Date(Date.now() - 3600 * 1000).toISOString();
         query = query.gt('created_at', hourAgo);
