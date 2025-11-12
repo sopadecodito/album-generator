@@ -5,6 +5,9 @@ if (typeof window.SPOTIFY_TOKEN_ENDPOINT === "undefined") {
 // Viewer por defecto (Dianita view).
 const params = new URLSearchParams(location.search);
 const VIEW_MODE = params.get("view") !== "0";
+const TWITCH_CHANNEL = 'sopadecoditoo';
+const TWITCH_EMBED_SCRIPT = 'https://player.twitch.tv/js/embed/v1.js';
+const TWITCH_MIN_HEIGHT = 240;
 
 const FEELING_BUTTONS = [
   { id: 'miss', label: 'Te extraño' },
@@ -48,6 +51,62 @@ function lockBackground(){
   document.body.classList.add('bg-locked');
 }
 document.addEventListener('DOMContentLoaded', lockBackground);
+
+function setupTwitchEmbed(){
+  const mount = document.getElementById('twitchPlayer');
+  if(!mount) return;
+
+  const parentHosts = window.location.hostname ? [window.location.hostname] : ['localhost'];
+  const renderError = (msg)=>{
+    mount.innerHTML = '';
+    const fallback = document.createElement('p');
+    fallback.className = 'muted small';
+    fallback.textContent = msg;
+    mount.appendChild(fallback);
+  };
+  const spawnPlayer = ()=>{
+    if(!(window.Twitch && window.Twitch.Embed)){
+      renderError('No se pudo cargar el reproductor de Twitch.');
+      return;
+    }
+    mount.innerHTML = '';
+    const width = mount.offsetWidth || 360;
+    const height = Math.max(Math.round(width * 9 / 16), TWITCH_MIN_HEIGHT);
+    try{
+      new Twitch.Embed(mount.id, {
+        channel: TWITCH_CHANNEL,
+        width: '100%',
+        height,
+        parent: parentHosts,
+        autoplay: false,
+        muted: true
+      });
+    }catch(err){
+      console.warn('Twitch embed error', err);
+      renderError('Ocurrió un problema al iniciar Twitch.');
+    }
+  };
+
+  if(window.Twitch?.Embed){
+    spawnPlayer();
+    return;
+  }
+
+  let script = document.querySelector(`script[src="${TWITCH_EMBED_SCRIPT}"]`);
+  if(script){
+    script.addEventListener('load', spawnPlayer, { once:true });
+    return;
+  }
+
+  script = document.createElement('script');
+  script.src = TWITCH_EMBED_SCRIPT;
+  script.async = true;
+  script.setAttribute('data-purpose', 'twitch-embed');
+  script.addEventListener('load', spawnPlayer, { once:true });
+  script.addEventListener('error', ()=> renderError('Twitch no está disponible ahora.'), { once:true });
+  document.body.appendChild(script);
+}
+document.addEventListener('DOMContentLoaded', setupTwitchEmbed);
 
 function parseSpotify(url){
   const m = String(url).match(/open\.spotify\.com\/(track|album|playlist)\/([A-Za-z0-9]+)/);

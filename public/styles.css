@@ -94,6 +94,39 @@ body.viewer .toolbar{display:none}
     radial-gradient(200px 160px at 85% 95%, color-mix(in oklch, var(--accent) 44%, transparent), transparent 60%)
 }
 
+.twitch{
+  margin:26px auto 0;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  max-width:620px;
+}
+.twitch-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.twitch-head h2{margin:0; color:var(--text)}
+.twitch-chip{background:rgba(126,247,196,.08); color:#7ef7c4}
+.twitch-player-wrap{
+  position:relative;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 22px 48px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05), inset 0 0 0 1px var(--glass-stroke);
+  background:linear-gradient(180deg, rgba(12,8,22,.6), rgba(16,10,28,.85));
+  width:100%;
+  max-width:500px;
+  margin:0 auto;
+}
+.twitch-player{
+  width:100%;
+  min-height:240px;
+  border:0;
+}
+
+
 /* Cards / contenido */
 .content{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:12px}
 .card{
@@ -189,6 +222,19 @@ h1, h2, h3, .artist{
   .player{ margin: 10px 0; }
   .embed-wrap{ border-radius: 14px; }
   .embed-wrap iframe{ height: 120px !important; }
+  .twitch{
+    margin:14px 0 20px;
+  }
+  .twitch-head{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .twitch-head .btn{
+    width:100%;
+  }
+  .twitch-player{
+    min-height:220px;
+  }
 
   /* cartas apiladas en 1 columna */
   .content{
