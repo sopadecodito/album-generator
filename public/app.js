@@ -20,6 +20,10 @@ const feelingsState = {
   statusNode: null,
   toastNode: null,
   toastTimer: null,
+  bannerNode: null,
+  bannerTimer: null,
+  logNode: null,
+  logEntries: [],
   ip: null,
   delivered: new Set(),
   lastCreatedAt: null,
@@ -168,7 +172,10 @@ function setupFeelingUI(){
 
   feelingsState.statusNode = status;
   feelingsState.toastNode = toast;
+  feelingsState.bannerNode = document.querySelector('#feelingBanner') || null;
+  feelingsState.logNode = document.querySelector('#feelingLog') || null;
   status.textContent = 'Configura Supabase para activarlos.';
+  renderFeelingLog();
   return true;
 }
 
@@ -325,17 +332,67 @@ function fireSystemNotification(body){
   }
 }
 
-function showFeelingToast(message){
+function renderFeelingLog(){
+  const list = feelingsState.logNode;
+  if (!list) return;
+  if (!feelingsState.logEntries.length){
+    list.innerHTML = '<li class="muted">Aún no hay botoncitos.</li>';
+    return;
+  }
+  list.innerHTML = feelingsState.logEntries.map(entry=>{
+    const safeMsg = escapeHTML(entry.message || 'Sin texto');
+    const rel = formatRelativeTime(entry.iso);
+    const exact = entry.exact ? ` · ${escapeHTML(entry.exact)}` : '';
+    const datetimeAttr = entry.iso ? ` datetime="${entry.iso}"` : '';
+    return `<li><strong>${safeMsg}</strong><time${datetimeAttr}>${rel}${exact}</time></li>`;
+  }).join('');
+}
+function resetFeelingLog(){
+  feelingsState.logEntries = [];
+  renderFeelingLog();
+}
+function addFeelingLogEntry(message, createdAt){
+  const iso = createdAt || new Date().toISOString();
+  let exact = '';
+  try{
+    const date = new Date(iso);
+    if (!Number.isNaN(date.getTime())){
+      exact = date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    }
+  }catch{}
+  feelingsState.logEntries.unshift({ message, iso, exact });
+  if (feelingsState.logEntries.length > 12) feelingsState.logEntries.pop();
+  renderFeelingLog();
+}
+
+function showFeelingToast(message, meta = {}){
   const toast = feelingsState.toastNode;
   if(!toast) return;
-  toast.textContent = message || 'Nuevo mensaje';
+  const lines = [message || 'Nuevo mensaje'];
+  if (meta.timeText) lines.push(meta.timeText);
+  toast.textContent = lines.join('\n');
   toast.classList.remove('hidden');
   toast.classList.add('show');
   clearTimeout(feelingsState.toastTimer);
   feelingsState.toastTimer = setTimeout(()=>{
     toast.classList.remove('show');
     setTimeout(()=> toast.classList.add('hidden'), 320);
-  }, 8400);
+  }, 10500);
+}
+
+function showFeelingBanner(message, meta = {}){
+  const banner = feelingsState.bannerNode;
+  if(!banner) return;
+  const parts = [message || 'Nuevo mensaje'];
+  if (meta.timeText) parts.push(meta.timeText);
+  banner.textContent = parts.join(' · ');
+  banner.classList.remove('hidden');
+  banner.classList.add('show');
+  clearTimeout(feelingsState.bannerTimer);
+  feelingsState.bannerTimer = setTimeout(()=>{
+    banner.classList.remove('show');
+    setTimeout(()=> banner.classList.add('hidden'), 280);
+  }, 5200);
 }
 
 async function emitFeeling(code, button){
@@ -406,11 +463,15 @@ function handleIncomingFeeling(row){
   const bothKnown = senderIp && localIp && senderIp !== 'unknown' && localIp !== 'unknown';
   if (bothKnown && senderIp === localIp) return;
   const text = row.message || 'Pensé en ti';
-  showFeelingToast(text);
+  const timeText = formatRelativeTime(createdAt);
+  const meta = { timeText };
+  showFeelingToast(text, meta);
+  showFeelingBanner(text, meta);
   playNotificationSound();
   if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
     fireSystemNotification(text);
   }
+  addFeelingLogEntry(text, createdAt);
   setFeelingStatus('Recibiste un botoncito 💌');
 }
 
@@ -465,6 +526,7 @@ async function initFeelingSignals(){
   feelingsState.delivered.clear();
   feelingsState.sessionStartedAt = new Date().toISOString();
   feelingsState.lastCreatedAt = feelingsState.sessionStartedAt;
+  resetFeelingLog();
 
   setFeelingButtonsEnabled(false);
   setFeelingStatus('Sincronizando...');
@@ -820,6 +882,24 @@ function highlightDATA(s){
   // respeta saltos de línea y resalta solo la palabra DATA exacta
   const safe = escapeHTML(s || '').replace(/\n/g,'<br>');
   return safe.replace(/\bDATA\b/g, '<span class="data-glow">DATA</span>');
+}
+
+function formatRelativeTime(iso){
+  try{
+    const date = iso ? new Date(iso) : new Date();
+    if (Number.isNaN(date.getTime())) throw new Error('invalid date');
+    const diffSec = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+    if (diffSec < 10) return 'Justo ahora';
+    if (diffSec < 60) return `Hace ${diffSec}s`;
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `Hace ${diffMin} min`;
+    const diffHour = Math.floor(diffMin / 60);
+    if (diffHour < 24) return `Hace ${diffHour} h`;
+    const diffDay = Math.floor(diffHour / 24);
+    return `Hace ${diffDay} d`;
+  }catch{
+    return 'Justo ahora';
+  }
 }
 
 // ========= Render desde today.json (viewer) =========

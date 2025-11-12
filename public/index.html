@@ -83,6 +83,13 @@
             <p class="muted small" id="notificationStatus">Activa las notificaciones del navegador para ver alertas al instante.</p>
           </div>
           <div class="feelings-grid" id="feelingsGrid" role="group" aria-label="Mensajes rápidos"></div>
+          <div class="feelings-log">
+            <div class="feelings-log-head">
+              <h3>Historial</h3>
+              <small class="muted" id="logHint">Solo verás los que lleguen mientras esta ventana está abierta.</small>
+            </div>
+            <ol id="feelingLog" class="feeling-log-list"></ol>
+          </div>
         </article>
         
 
@@ -140,6 +147,7 @@ voy a cansar de repetirtelo, hace un rato me puse a pensar mucho en nosotros, y 
   
   </main>
 
+<div id="feelingBanner" class="feeling-banner hidden" role="status" aria-live="polite"></div>
 <div id="feelingToast" class="feeling-toast hidden" role="status" aria-live="polite"></div>
 
 <script src="app.js?v=8" defer></script>
