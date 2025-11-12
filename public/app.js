@@ -328,13 +328,14 @@ function fireSystemNotification(body){
 function showFeelingToast(message){
   const toast = feelingsState.toastNode;
   if(!toast) return;
-  toast.textContent = message;
+  toast.textContent = message || 'Nuevo mensaje';
   toast.classList.remove('hidden');
   toast.classList.add('show');
   clearTimeout(feelingsState.toastTimer);
   feelingsState.toastTimer = setTimeout(()=>{
     toast.classList.remove('show');
-  }, 4200);
+    setTimeout(()=> toast.classList.add('hidden'), 320);
+  }, 8400);
 }
 
 async function emitFeeling(code, button){

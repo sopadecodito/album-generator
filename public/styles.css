@@ -290,19 +290,37 @@ h1, h2, h3, .artist{
 .feeling-toast{
   position:fixed;
   left:50%;
-  bottom:24px;
-  transform:translate(-50%,20px);
-  padding:14px 18px;
-  border-radius:16px;
-  background:rgba(8,5,18,.92);
-  border:1px solid rgba(255,255,255,.16);
-  box-shadow:0 24px 55px rgba(0,0,0,.55);
+  bottom:28px;
+  transform:translate(-50%,24px);
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:16px 22px;
+  border-radius:999px;
+  background:linear-gradient(135deg, rgba(17,12,28,.94), rgba(8,6,18,.88));
+  border:1px solid color-mix(in oklch, var(--accent) 35%, transparent);
+  box-shadow:
+    0 28px 60px rgba(0,0,0,.55),
+    0 0 22px color-mix(in oklch, var(--accent-2) 45%, transparent);
   color:var(--text);
   font-weight:700;
   z-index:80;
   opacity:0;
   pointer-events:none;
-  transition:opacity .25s ease, transform .25s ease;
+  backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+  transition:opacity .28s ease, transform .28s ease;
+  white-space:pre-line;
+  letter-spacing:-0.01em;
+}
+.feeling-toast::before{
+  content:"";
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #fff, color-mix(in oklch, var(--accent) 60%, transparent));
+  box-shadow:0 0 18px color-mix(in oklch, var(--accent) 65%, transparent);
+  flex-shrink:0;
 }
 .feeling-toast.show{
   opacity:1;
@@ -314,10 +332,12 @@ h1, h2, h3, .artist{
     grid-template-columns:repeat(auto-fit, minmax(120px,1fr));
   }
   .feeling-toast{
-    width:calc(100% - 36px);
-    left:18px;
-    right:18px;
-    transform:translateY(20px);
+    width:calc(100% - 32px);
+    left:16px;
+    right:16px;
+    transform:translateY(24px);
+    border-radius:20px;
+    padding:14px 18px;
   }
   .feeling-toast.show{
     transform:translateY(0);
