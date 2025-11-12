@@ -354,7 +354,10 @@ async function fetchPublicIp(){
 
 function handleIncomingFeeling(row){
   if(!row) return;
-  if (row.sender_ip && feelingsState.ip && row.sender_ip === feelingsState.ip) return;
+  const senderIp = row.sender_ip;
+  const localIp = feelingsState.ip;
+  const bothKnown = senderIp && localIp && senderIp !== 'unknown' && localIp !== 'unknown';
+  if (bothKnown && senderIp === localIp) return;
   const text = row.message || 'Pensé en ti';
   showFeelingToast(text);
   playNotificationSound();
