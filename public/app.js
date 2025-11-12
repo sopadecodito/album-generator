@@ -22,6 +22,7 @@ const feelingsState = {
   toastTimer: null,
   ip: null
 };
+const IS_SECURE_CONTEXT = window.isSecureContext || ['localhost','127.0.0.1','::1'].includes(location.hostname);
 const notificationState = {
   supported: typeof Notification !== 'undefined',
   button: null,
@@ -215,6 +216,11 @@ function syncNotificationPermission(forcedPermission){
 }
 
 async function requestNotificationPermission(){
+  if(!IS_SECURE_CONTEXT){
+    updateNotificationStatus('Necesitas abrir esto en HTTPS o localhost para permitir notificaciones.');
+    notificationState.button?.classList.add('hidden');
+    return;
+  }
   if (!notificationState.supported){
     updateNotificationStatus('Tu navegador no soporta notificaciones.');
     return;
@@ -244,6 +250,11 @@ function initNotificationGuard(){
   if(!btn || !status) return;
   notificationState.button = btn;
   notificationState.statusNode = status;
+  if(!IS_SECURE_CONTEXT){
+    updateNotificationStatus('Las notificaciones solo funcionan en HTTPS o localhost.');
+    btn.classList.add('hidden');
+    return;
+  }
   btn.addEventListener('click', requestNotificationPermission);
   syncNotificationPermission();
 }
@@ -254,6 +265,19 @@ function ensureAudioContext(){
   if (!AudioCtx) return null;
   notificationState.audioCtx = new AudioCtx();
   return notificationState.audioCtx;
+}
+
+function primeAudioContextOnInteraction(){
+  const handler = ()=>{
+    const ctx = ensureAudioContext();
+    if (ctx && ctx.state === 'suspended'){
+      ctx.resume().catch(()=>{});
+    }
+    window.removeEventListener('pointerdown', handler);
+    window.removeEventListener('keydown', handler);
+  };
+  window.addEventListener('pointerdown', handler);
+  window.addEventListener('keydown', handler);
 }
 
 function playNotificationSound(){
@@ -840,6 +864,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Dianita solo verá contenido
   if (VIEW_MODE) document.body.classList.add('viewer');
   initNotificationGuard();
+  primeAudioContextOnInteraction();
   initFeelingSignals();
 
   // Botones (solo los veo yo)
