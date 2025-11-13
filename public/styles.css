@@ -28,6 +28,78 @@ body.bg-locked{
   background-attachment: fixed !important;
 }
 
+.fruit-rain{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:5;
+  opacity:0;
+  transition:opacity .6s ease;
+}
+.fruit-rain[data-active="true"]{ opacity:1; }
+.fruit-rain .fruit{
+  position:absolute;
+  top:-12%;
+  left:var(--x,50%);
+  width:var(--size,24px);
+  height:calc(var(--size,24px)*1.05);
+  border-radius:48% 48% 42% 42%/52% 52% 38% 38%;
+  background:#e9414f;
+  animation:fruitFall var(--duration,9s) linear infinite;
+  animation-delay:calc(var(--delay,0s)*-1);
+  opacity:var(--alpha,.85);
+  transform-origin:center top;
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,.35));
+}
+.fruit-rain .fruit.apple{
+  background:radial-gradient(circle at 30% 25%, #ffccd1 0%, #f06060 35%, #d9253f 65%, #9c0d24 100%);
+}
+.fruit-rain .fruit.apple::after{
+  content:"";
+  position:absolute;
+  top:-12%;
+  left:52%;
+  width:14%;
+  height:36%;
+  background:#2e1a0c;
+  border-radius:999px;
+}
+.fruit-rain .fruit.apple::before{
+  content:"";
+  position:absolute;
+  top:-32%;
+  left:60%;
+  width:50%;
+  height:50%;
+  border-radius:60% 20% 60% 20%;
+  background:linear-gradient(120deg,#55e0a2 0%, #1e9c58 90%);
+  transform:rotate(-22deg);
+}
+.fruit-rain .fruit.mango{
+  background:
+    radial-gradient(circle at 28% 28%, #fff9b8 0%, #ffe16d 55%, transparent 63%),
+    radial-gradient(circle at 70% 70%, #ffb347 0%, #ff8a3a 58%, transparent 70%),
+    linear-gradient(155deg, #5ecc7a 0%, #fdd85d 42%, #fb923c 72%, #f43f5e 100%);
+  border-radius:36% 62% 45% 55%/48% 70% 38% 60%;
+}
+@keyframes fruitFall{
+  0%{
+    transform:translate3d(-50%, -120%, 0) rotate(var(--spin-start,-12deg));
+    opacity:0;
+  }
+  5%{
+    opacity:var(--alpha,.85);
+  }
+  100%{
+    transform:translate3d(-50%, 120vh, 0) rotate(var(--spin-end,24deg));
+    opacity:0;
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .fruit-rain{display:none;}
+}
+
 
 .page{width:min(1100px,100%); margin-inline:auto}
 

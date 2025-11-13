@@ -41,6 +41,12 @@ const notificationState = {
   requesting: false,
   audioCtx: null
 };
+const FRUIT_RAIN_DEFAULTS = ['apple', 'mango'];
+const fruitRainState = {
+  root: null,
+  active: false,
+  current: null
+};
 
 // ========= Helpers =========
 const $ = (sel) => document.querySelector(sel);
@@ -107,6 +113,59 @@ function setupTwitchEmbed(){
   document.body.appendChild(script);
 }
 document.addEventListener('DOMContentLoaded', setupTwitchEmbed);
+
+function ensureFruitRainRoot(){
+  if (fruitRainState.root) return fruitRainState.root;
+  fruitRainState.root = document.getElementById('fruitRain');
+  return fruitRainState.root;
+}
+function createFruitNode(type){
+  const rootClass = type === 'mango' ? 'mango' : 'apple';
+  const node = document.createElement('span');
+  node.className = `fruit ${rootClass}`;
+  const size = 18 + Math.random() * 18;
+  node.style.setProperty('--size', `${size.toFixed(2)}px`);
+  node.style.setProperty('--x', `${Math.random() * 100}%`);
+  node.style.setProperty('--duration', `${(7 + Math.random() * 6).toFixed(2)}s`);
+  node.style.setProperty('--delay', `${(Math.random() * 6).toFixed(2)}s`);
+  node.style.setProperty('--alpha', (0.45 + Math.random() * 0.4).toFixed(2));
+  node.style.setProperty('--spin-start', `${(-35 + Math.random() * 70).toFixed(2)}deg`);
+  node.style.setProperty('--spin-end', `${(-20 + Math.random() * 70).toFixed(2)}deg`);
+  return node;
+}
+function enableFruitRain(config = {}){
+  const mount = ensureFruitRainRoot();
+  if (!mount) return;
+  const fruits = Array.isArray(config.fruits) && config.fruits.length
+    ? config.fruits
+    : FRUIT_RAIN_DEFAULTS;
+  const density = Math.max(6, Math.min(36, Number(config.density) || 18));
+  mount.innerHTML = '';
+  for (let i = 0; i < density; i++){
+    const type = fruits[Math.floor(Math.random() * fruits.length)] || FRUIT_RAIN_DEFAULTS[0];
+    mount.appendChild(createFruitNode(type));
+  }
+  mount.dataset.active = 'true';
+  fruitRainState.active = true;
+  fruitRainState.current = config;
+}
+function disableFruitRain(){
+  const mount = ensureFruitRainRoot();
+  if (mount){
+    mount.innerHTML = '';
+    delete mount.dataset.active;
+  }
+  fruitRainState.active = false;
+  fruitRainState.current = null;
+}
+function syncFruitRain(entry){
+  const cfg = entry?.effects?.fruitRain;
+  if (cfg?.enabled){
+    enableFruitRain(cfg);
+  } else {
+    disableFruitRain();
+  }
+}
 
 function parseSpotify(url){
   const m = String(url).match(/open\.spotify\.com\/(track|album|playlist)\/([A-Za-z0-9]+)/);
@@ -672,6 +731,7 @@ function buildHeroVideo(container, hero = {}, spotifyUrl){
 
 // ========= Render desde URL (modo admin) =========
 async function renderFromUrl(spotifyUrl){
+  syncFruitRain(null);
   const parsed = parseSpotify(spotifyUrl);
   const o = await fetchOEmbed(spotifyUrl);
 
@@ -1039,6 +1099,7 @@ async function renderFromTodayJson(){
 
     // ==== Galería opcional ====
     renderGalleryFromJson(j);
+    syncFruitRain(j);
 
     $('#result').classList.remove('hidden');
   }catch(e){

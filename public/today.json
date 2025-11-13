@@ -1,11 +1,11 @@
 {
-  "title": "My Kind of Woman",
-  "artist": "Mac DeMarco",
-  "date": "2012",
-  "cover": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e029d377496c6bc8724b521222d",
-  "spotify_embed": "https://open.spotify.com/intl-es/track/6jgkEbmQ2F2onEqsEhiliL?si=d3b973902e2b4385",
-  "lyric_highlight": "You're making me crazy\nReally driving me mad\n\nBut that's all right with me\nIt's really no fuss\nAs long as you're next to me\nJust the two of us\n\nYou're my, my, my, my kind of woman\nMy, oh my, what a girl\nYou're my, my, my, my kind of woman\nAnd I'm down on my hands and knees\nBegging you please, baby\nShow me your world",
-  "message": "A veces la respuesta mas simple es la respuesta correcta",
+  "title": "Árbol De Manzanas",
+  "artist": "NSQK",
+  "date": "2020",
+  "cover": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02db0bf320fc5001cd184af8fe",
+  "spotify_embed": "https://open.spotify.com/embed/track/6H5UMkAnweqb4cKIsAzUh9?utm_source=generator",
+  "lyric_highlight": "Y sólo es tu sonrisa lo que más necesitaba\nY en un jardín de hierbas\nTu eres flores y abejas floreciendo\n¿Y flores siendo?\nEnloqueciendo en lo que soy y en lo que eres\nYo orgulloso viendo cómo creces y floreces\nY esta redundancia es sólo una\nProbadita de lo idiota que\nMe tienes y de lo increíble que tu eres\nTu mirada que mantienes tu tan fija en mí\nEl tiempo frena y cantando ángeles de serafín\nY tus caricias serán mi fin, o ya no\nSé si yo pueda seguir solo así\nSiendo sin ti",
+  "message": "Planté este árbol para ti, que caigan manzanas para mí y mangos para ti, que crezca aunque no estemos cerca\n\nNo lo planté para que me lo agradezcas, sino para que cuando necesites sombra, la encuentres\nY si algún día te pierdes, sigas el olor de sus frutos porque ahí voy a estar yo, cuidando lo que sembramos con mucho amor",
   "bible_ref": "",
   "bible_text": "",
   "video": {
@@ -20,6 +20,13 @@
     "autoplay": false,
     "muted": false,
     "loop": false
+  },
+  "effects": {
+    "fruitRain": {
+      "enabled": true,
+      "density": 20,
+      "fruits": ["apple", "mango"]
+    }
   },
   "gallery": [
     { "src": "media/1.jpeg", "alt": "Te amaré" },
