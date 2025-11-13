@@ -1002,6 +1002,140 @@ function highlightDATA(s){
   const safe = escapeHTML(s || '').replace(/\n/g,'<br>');
   return safe.replace(/\bDATA\b/g, '<span class="data-glow">DATA</span>');
 }
+function initMagicNote(){
+  const cards = Array.from(document.querySelectorAll('.magical-note'));
+  if (!cards.length) return;
+
+  const hasResizeObserver = typeof ResizeObserver !== 'undefined';
+  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+  cards.forEach(card => {
+    const wand = card.querySelector('.wand-emoji');
+    const text = card.querySelector('.spell-text');
+    if (!wand || !text) return;
+
+    const state = {
+      dragging: false,
+      progress: 0,
+      wandY: 0.25
+    };
+    const STEP = 0.08;
+    const MIN_REVEAL = 0.015;
+
+    const setProgress = (value, opts = {}) => {
+      const target = clamp(value, 0, 1);
+      const next = opts.allowLower ? target : Math.max(target, state.progress);
+      state.progress = next;
+      card.style.setProperty('--reveal-progress', `${(next * 100).toFixed(2)}%`);
+      if (next >= MIN_REVEAL){
+        card.dataset.revealed = 'true';
+      } else {
+        delete card.dataset.revealed;
+      }
+    };
+
+    const placeWand = (clientX, clientY) => {
+      const cardRect = card.getBoundingClientRect();
+      if (!cardRect.width || !cardRect.height) return;
+      const safeX = clamp(clientX, cardRect.left + 8, cardRect.right - 8);
+      const safeY = clamp(clientY, cardRect.top + 8, cardRect.bottom - 8);
+      const percentX = ((safeX - cardRect.left) / cardRect.width) * 100;
+      const percentY = ((safeY - cardRect.top) / cardRect.height) * 100;
+      state.wandY = percentY / 100;
+      card.style.setProperty('--wand-x', `${percentX.toFixed(2)}%`);
+      card.style.setProperty('--wand-y', `${percentY.toFixed(2)}%`);
+    };
+
+    const revealFromPointer = (clientX, clientY) => {
+      const rect = text.getBoundingClientRect();
+      if (!rect.width){
+        return;
+      }
+      const safeX = clamp(clientX, rect.left, rect.right);
+      const ratio = (safeX - rect.left) / rect.width;
+      setProgress(ratio);
+      placeWand(clientX, clientY ?? (rect.top + rect.height * state.wandY));
+    };
+
+    const alignWandToProgress = () => {
+      const rect = text.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      if (!cardRect.width || !cardRect.height) return;
+      const x = rect.width ? rect.left + rect.width * state.progress : cardRect.left + cardRect.width * state.progress;
+      const y = rect.height ? rect.top + rect.height * (state.wandY || 0.25) : cardRect.top + cardRect.height * (state.wandY || 0.25);
+      placeWand(x, y);
+    };
+
+    const reset = () => {
+      state.progress = 0;
+      state.wandY = 0.25;
+      card.style.setProperty('--reveal-progress', '0%');
+      delete card.dataset.revealed;
+      requestAnimationFrame(alignWandToProgress);
+    };
+
+    const startDrag = (event) => {
+      event.preventDefault();
+      wand.setPointerCapture?.(event.pointerId);
+      state.dragging = true;
+      card.dataset.dragging = 'true';
+      revealFromPointer(event.clientX, event.clientY);
+    };
+    const moveDrag = (event) => {
+      if (!state.dragging) return;
+      revealFromPointer(event.clientX, event.clientY);
+    };
+    const endDrag = (event) => {
+      if (!state.dragging) return;
+      state.dragging = false;
+      wand.releasePointerCapture?.(event.pointerId);
+      delete card.dataset.dragging;
+      alignWandToProgress();
+    };
+
+    wand.addEventListener('pointerdown', startDrag);
+    wand.addEventListener('pointermove', moveDrag);
+    wand.addEventListener('pointerup', endDrag);
+    wand.addEventListener('pointercancel', endDrag);
+
+    wand.addEventListener('keydown', (event)=>{
+      if (event.key === 'ArrowRight'){
+        event.preventDefault();
+        setProgress(state.progress + STEP, { allowLower:true });
+        alignWandToProgress();
+      } else if (event.key === 'ArrowLeft'){
+        event.preventDefault();
+        setProgress(state.progress - STEP, { allowLower:true });
+        alignWandToProgress();
+      } else if (event.key === 'Enter'){
+        event.preventDefault();
+        if (state.progress >= 0.98){
+          reset();
+        } else {
+          setProgress(1, { allowLower:true });
+          alignWandToProgress();
+        }
+      } else if (event.key === ' '){
+        event.preventDefault();
+        reset();
+      }
+    });
+
+    wand.addEventListener('dblclick', (event)=>{
+      event.preventDefault();
+      reset();
+    });
+
+    if (hasResizeObserver){
+      const observer = new ResizeObserver(()=> alignWandToProgress());
+      observer.observe(card);
+    } else {
+      window.addEventListener('resize', alignWandToProgress, { passive:true });
+    }
+
+    reset();
+  });
+}
 
 function formatRelativeTime(iso){
   try{
@@ -1138,6 +1272,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   initNotificationGuard();
   primeAudioContextOnInteraction();
   initFeelingSignals();
+  initMagicNote();
 
   // Botones (solo los veo yo)
   $('#btnGen')?.addEventListener('click', ()=>{

@@ -68,10 +68,18 @@
           <p id="lyric" class="lyric"></p>
         </article>
 
-      <article class="card prose">  
-         <h2>Mi mensaje</h2> 
-          <p id="note"></p>
-        </article>
+      <article class="card prose magical-note">
+        <h2>Mi mensaje</h2>
+        <button
+          type="button"
+          class="wand-emoji"
+          aria-controls="note"
+          aria-label="Arrastra la varita para revelar el mensaje"
+        >🪄</button>
+        <div class="spell-field">
+          <p id="note" class="spell-text"></p>
+        </div>
+      </article>
 
         <article class="card prose feelings-card" id="feelingPanel">
           <div class="feelings-head">
