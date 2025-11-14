@@ -95,12 +95,64 @@ body.viewer .toolbar{display:none}
     radial-gradient(200px 160px at 85% 95%, color-mix(in oklch, var(--accent) 44%, transparent), transparent 60%)
 }
 
-.twitch{
-  margin:26px auto 0;
+.weekly-obsession{
+  margin:0;
   display:flex;
   flex-direction:column;
   gap:14px;
-  max-width:620px;
+  height:100%;
+}
+.obsession-twitch{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+  gap:18px;
+  margin:28px 0 0;
+  align-items:stretch;
+}
+.weekly-obsession-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.weekly-obsession h2{
+  margin:0;
+  color:var(--text);
+  font-size:1.5rem;
+}
+.weekly-chip{
+  background:rgba(255,255,255,.08);
+  color:#ffd6fb;
+}
+.weekly-embed{
+  border-radius:18px;
+  border:1px solid var(--glass-stroke);
+  padding:0;
+  min-height:200px;
+  overflow:hidden;
+  position:relative;
+  background:linear-gradient(180deg, rgba(16, 12, 24, .8), rgba(10,8,16,.9));
+  box-shadow:0 18px 40px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.weekly-embed iframe{
+  width:100%;
+  height:352px;
+  border:0;
+}
+.weekly-obsession[data-empty="true"] .weekly-embed{
+  padding:16px;
+}
+
+.twitch{
+  margin:0;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  max-width:100%;
 }
 .twitch-head{
   display:flex;
@@ -118,8 +170,8 @@ body.viewer .toolbar{display:none}
   box-shadow:0 22px 48px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05), inset 0 0 0 1px var(--glass-stroke);
   background:linear-gradient(180deg, rgba(12,8,22,.6), rgba(16,10,28,.85));
   width:100%;
-  max-width:500px;
-  margin:0 auto;
+  max-width:100%;
+  margin:0;
 }
 .twitch-player{
   width:100%;

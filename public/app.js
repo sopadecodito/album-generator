@@ -11,7 +11,7 @@ const TWITCH_MIN_HEIGHT = 240;
 
 const FEELING_BUTTONS = [
   { id: 'miss', label: 'Te extraño' },
-  { id: 'sorry', label: 'Hablemos' },
+  { id: 'sorry', label: 'Beso' },
   { id: 'angry', label: 'Me caes mal pero te amo' },
   { id: 'sad', label: 'Estoy triste' }
 ];
@@ -1182,6 +1182,23 @@ async function renderFromTodayJson(){
       }
     }
 
+    const weeklySection = document.getElementById('weeklyObsession');
+    const weeklyMount = document.getElementById('weeklyPlaylist');
+    if (weeklySection && weeklyMount) {
+      weeklyMount.innerHTML = '';
+      let weeklySrc = j.weekly_playlist_embed || null;
+      if (!weeklySrc && j.weekly_playlist_embed_html) {
+        weeklySrc = extractSpotifySrc(j.weekly_playlist_embed_html);
+      }
+      if (weeklySrc) {
+        weeklyMount.innerHTML = `<iframe src="${weeklySrc}" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+        weeklySection.removeAttribute('data-empty');
+      } else {
+        weeklyMount.innerHTML = '<p class="muted small">Agrega un enlace embed en today.json dentro de "weekly_playlist_embed" para mostrar la playlist de la semana.</p>';
+        weeklySection.setAttribute('data-empty', 'true');
+      }
+    }
+
     
 
     // Paleta (no se pq no sirve)
@@ -1245,6 +1262,8 @@ async function renderFromTodayJson(){
 function exportJSON(){
   const iframe = $('#embedContainer')?.querySelector('iframe');
   const src = iframe?.getAttribute('src') || '';
+  const weeklyIframe = $('#weeklyPlaylist')?.querySelector('iframe');
+  const weeklySrc = weeklyIframe?.getAttribute('src') || '';
   const data = {
     title: $('#title')?.textContent || '',
     artist: $('#artistLink')?.textContent || '',
@@ -1252,6 +1271,8 @@ function exportJSON(){
     cover: $('#cover')?.src || '',
     spotify_embed_html: iframe ? iframe.outerHTML : '',
     spotify_embed: src,
+    weekly_playlist_embed_html: weeklyIframe ? weeklyIframe.outerHTML : '',
+    weekly_playlist_embed: weeklySrc,
     lyric_highlight: $('#lyric')?.textContent || '',
     message: $('#note')?.textContent || '',
     bible_ref: $('#bibleRef')?.textContent || '',
