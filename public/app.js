@@ -1142,7 +1142,18 @@ async function renderFromTodayJson(){
 
     // Player
     const embed = $('#embedContainer'); embed.innerHTML = '';
-    const heroVideo = j.hero_video || j.video || null;
+    const baseHeroVideo = j.hero_video || j.video || null;
+    const cloudVideoSrc = j.cloud_video_embed || j.cloud_video_url || null;
+    let heroVideo = baseHeroVideo;
+    if (cloudVideoSrc) {
+      heroVideo = {
+        ...(baseHeroVideo || {}),
+        src: cloudVideoSrc
+      };
+      embed.dataset.cloudVideo = cloudVideoSrc;
+    } else {
+      delete embed.dataset.cloudVideo;
+    }
     const spotifyUrl = deriveSpotifyUrl(j);
     const hasVideo = buildHeroVideo(embed, heroVideo, spotifyUrl);
     if (!hasVideo) {
@@ -1230,7 +1241,8 @@ async function renderFromTodayJson(){
 }
 
 function exportJSON(){
-  const iframe = $('#embedContainer')?.querySelector('iframe');
+  const embedContainer = $('#embedContainer');
+  const iframe = embedContainer?.querySelector('iframe');
   const src = iframe?.getAttribute('src') || '';
   const weeklyIframe = $('#weeklyPlaylist')?.querySelector('iframe');
   const weeklySrc = weeklyIframe?.getAttribute('src') || '';
@@ -1241,6 +1253,7 @@ function exportJSON(){
     cover: $('#cover')?.src || '',
     spotify_embed_html: iframe ? iframe.outerHTML : '',
     spotify_embed: src,
+    cloud_video_embed: embedContainer?.dataset?.cloudVideo || '',
     weekly_playlist_embed_html: weeklyIframe ? weeklyIframe.outerHTML : '',
     weekly_playlist_embed: weeklySrc,
     lyric_highlight: $('#lyric')?.textContent || '',
