@@ -350,7 +350,6 @@ function deriveSpotifyUrl(entry){
     return src.includes('/embed/') ? src.replace('/embed/','/') : src;
   }
 }
-
 // ========= Botones rápidos (Supabase) =========
 function setupFeelingUI(){
   const grid = document.querySelector('#feelingsGrid');
@@ -1230,7 +1229,6 @@ async function renderFromTodayJson(){
   }
 }
 
-// ========= Exportar JSON (solo lo veo yo) =========
 function exportJSON(){
   const iframe = $('#embedContainer')?.querySelector('iframe');
   const src = iframe?.getAttribute('src') || '';
