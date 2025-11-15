@@ -47,10 +47,27 @@ const fruitRainState = {
   active: false,
   current: null
 };
+const STAR_LAYERS = [
+  { count: 58, size: [0.8, 1.6], parallax: 26, opacity: [0.35, 0.7] },
+  { count: 44, size: [1.6, 2.6], parallax: 46, opacity: [0.45, 0.8] },
+  { count: 30, size: [2.6, 4], parallax: 68, opacity: [0.55, 0.9] },
+  { count: 18, size: [4, 5.4], parallax: 92, opacity: [0.65, 1] }
+];
+const starfieldState = {
+  root: null,
+  stars: [],
+  pointer: { x: 0, y: 0 },
+  raf: null,
+  handlersBound: false,
+  moveHandler: null,
+  leaveHandler: null
+};
+const STARFIELD_INTENSITY = 1.35;
 
 // ========= Helpers =========
 const $ = (sel) => document.querySelector(sel);
 const getParam = (k) => new URLSearchParams(location.search).get(k);
+const randBetween = (min, max) => min + Math.random() * (max - min);
 
 function lockBackground(){
   document.body.style.background = '';
@@ -165,6 +182,72 @@ function syncFruitRain(entry){
   } else {
     disableFruitRain();
   }
+}
+
+function initStarfield(){
+  const mount = document.getElementById('starfield');
+  if (!mount) return;
+  starfieldState.root = mount;
+  starfieldState.stars = [];
+  mount.innerHTML = '';
+  STAR_LAYERS.forEach(layer=>{
+    const count = layer.count || 0;
+    const minSize = layer.size?.[0] ?? 1;
+    const maxSize = layer.size?.[1] ?? (minSize + 1);
+    const opacityRange = Array.isArray(layer.opacity) && layer.opacity.length === 2
+      ? layer.opacity
+      : [0.4, 0.85];
+    for (let i = 0; i < count; i++){
+      const star = document.createElement('span');
+      star.className = 'star';
+      const size = randBetween(minSize, maxSize);
+      star.style.width = `${size.toFixed(2)}px`;
+      star.style.height = `${size.toFixed(2)}px`;
+      star.style.left = `${(Math.random() * 100).toFixed(2)}%`;
+      star.style.top = `${(Math.random() * 100).toFixed(2)}%`;
+      star.style.opacity = randBetween(opacityRange[0], opacityRange[1]).toFixed(2);
+      star.dataset.parallax = String(layer.parallax || 18);
+      mount.appendChild(star);
+      starfieldState.stars.push(star);
+    }
+  });
+  if (!starfieldState.handlersBound){
+    starfieldState.moveHandler = (evt)=> updateStarfieldPointer(evt.clientX, evt.clientY);
+    starfieldState.leaveHandler = ()=> updateStarfieldPointer(null, null);
+    window.addEventListener('pointermove', starfieldState.moveHandler, { passive:true });
+    window.addEventListener('pointerleave', starfieldState.leaveHandler, { passive:true });
+    window.addEventListener('blur', starfieldState.leaveHandler);
+    window.addEventListener('resize', ()=> requestStarfieldFrame(), { passive:true });
+    starfieldState.handlersBound = true;
+  }
+  updateStarfieldPointer(null, null);
+}
+function updateStarfieldPointer(clientX, clientY){
+  const { innerWidth, innerHeight } = window;
+  if (!innerWidth || !innerHeight) return;
+  if (typeof clientX !== 'number' || typeof clientY !== 'number'){
+    starfieldState.pointer.x = 0;
+    starfieldState.pointer.y = 0;
+  } else {
+    starfieldState.pointer.x = ((clientX / innerWidth) - 0.5) * STARFIELD_INTENSITY;
+    starfieldState.pointer.y = ((clientY / innerHeight) - 0.5) * STARFIELD_INTENSITY;
+  }
+  requestStarfieldFrame();
+}
+function requestStarfieldFrame(){
+  if (starfieldState.raf) return;
+  starfieldState.raf = requestAnimationFrame(applyStarfieldParallax);
+}
+function applyStarfieldParallax(){
+  starfieldState.raf = null;
+  if (!starfieldState.stars.length) return;
+  const { x, y } = starfieldState.pointer;
+  starfieldState.stars.forEach(star=>{
+    const depth = Number(star.dataset.parallax) || 12;
+    const tx = x * depth;
+    const ty = y * depth;
+    star.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+  });
 }
 
 function parseSpotify(url){
@@ -1006,134 +1089,23 @@ function initMagicNote(){
   const cards = Array.from(document.querySelectorAll('.magical-note'));
   if (!cards.length) return;
 
-  const hasResizeObserver = typeof ResizeObserver !== 'undefined';
-  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-
   cards.forEach(card => {
-    const wand = card.querySelector('.wand-emoji');
-    const text = card.querySelector('.spell-text');
-    if (!wand || !text) return;
+    const switchBtn = card.querySelector('.light-switch');
+    const switchLabel = switchBtn?.querySelector('.switch-label');
+    if (!switchBtn || !switchLabel) return;
 
-    const state = {
-      dragging: false,
-      progress: 0,
-      wandY: 0.25
-    };
-    const STEP = 0.08;
-    const MIN_REVEAL = 0.015;
-
-    const setProgress = (value, opts = {}) => {
-      const target = clamp(value, 0, 1);
-      const next = opts.allowLower ? target : Math.max(target, state.progress);
-      state.progress = next;
-      card.style.setProperty('--reveal-progress', `${(next * 100).toFixed(2)}%`);
-      if (next >= MIN_REVEAL){
-        card.dataset.revealed = 'true';
-      } else {
-        delete card.dataset.revealed;
-      }
+    let isOn = false;
+    const applyState = () => {
+      card.classList.toggle('lit', isOn);
+      switchBtn.setAttribute('aria-pressed', isOn ? 'true' : 'false');
+      switchLabel.textContent = isOn ? 'Apagar la luz' : 'Encender la luz';
     };
 
-    const placeWand = (clientX, clientY) => {
-      const cardRect = card.getBoundingClientRect();
-      if (!cardRect.width || !cardRect.height) return;
-      const safeX = clamp(clientX, cardRect.left + 8, cardRect.right - 8);
-      const safeY = clamp(clientY, cardRect.top + 8, cardRect.bottom - 8);
-      const percentX = ((safeX - cardRect.left) / cardRect.width) * 100;
-      const percentY = ((safeY - cardRect.top) / cardRect.height) * 100;
-      state.wandY = percentY / 100;
-      card.style.setProperty('--wand-x', `${percentX.toFixed(2)}%`);
-      card.style.setProperty('--wand-y', `${percentY.toFixed(2)}%`);
-    };
-
-    const revealFromPointer = (clientX, clientY) => {
-      const rect = text.getBoundingClientRect();
-      if (!rect.width){
-        return;
-      }
-      const safeX = clamp(clientX, rect.left, rect.right);
-      const ratio = (safeX - rect.left) / rect.width;
-      setProgress(ratio);
-      placeWand(clientX, clientY ?? (rect.top + rect.height * state.wandY));
-    };
-
-    const alignWandToProgress = () => {
-      const rect = text.getBoundingClientRect();
-      const cardRect = card.getBoundingClientRect();
-      if (!cardRect.width || !cardRect.height) return;
-      const x = rect.width ? rect.left + rect.width * state.progress : cardRect.left + cardRect.width * state.progress;
-      const y = rect.height ? rect.top + rect.height * (state.wandY || 0.25) : cardRect.top + cardRect.height * (state.wandY || 0.25);
-      placeWand(x, y);
-    };
-
-    const reset = () => {
-      state.progress = 0;
-      state.wandY = 0.25;
-      card.style.setProperty('--reveal-progress', '0%');
-      delete card.dataset.revealed;
-      requestAnimationFrame(alignWandToProgress);
-    };
-
-    const startDrag = (event) => {
-      event.preventDefault();
-      wand.setPointerCapture?.(event.pointerId);
-      state.dragging = true;
-      card.dataset.dragging = 'true';
-      revealFromPointer(event.clientX, event.clientY);
-    };
-    const moveDrag = (event) => {
-      if (!state.dragging) return;
-      revealFromPointer(event.clientX, event.clientY);
-    };
-    const endDrag = (event) => {
-      if (!state.dragging) return;
-      state.dragging = false;
-      wand.releasePointerCapture?.(event.pointerId);
-      delete card.dataset.dragging;
-      alignWandToProgress();
-    };
-
-    wand.addEventListener('pointerdown', startDrag);
-    wand.addEventListener('pointermove', moveDrag);
-    wand.addEventListener('pointerup', endDrag);
-    wand.addEventListener('pointercancel', endDrag);
-
-    wand.addEventListener('keydown', (event)=>{
-      if (event.key === 'ArrowRight'){
-        event.preventDefault();
-        setProgress(state.progress + STEP, { allowLower:true });
-        alignWandToProgress();
-      } else if (event.key === 'ArrowLeft'){
-        event.preventDefault();
-        setProgress(state.progress - STEP, { allowLower:true });
-        alignWandToProgress();
-      } else if (event.key === 'Enter'){
-        event.preventDefault();
-        if (state.progress >= 0.98){
-          reset();
-        } else {
-          setProgress(1, { allowLower:true });
-          alignWandToProgress();
-        }
-      } else if (event.key === ' '){
-        event.preventDefault();
-        reset();
-      }
+    applyState();
+    switchBtn.addEventListener('click', ()=>{
+      isOn = !isOn;
+      applyState();
     });
-
-    wand.addEventListener('dblclick', (event)=>{
-      event.preventDefault();
-      reset();
-    });
-
-    if (hasResizeObserver){
-      const observer = new ResizeObserver(()=> alignWandToProgress());
-      observer.observe(card);
-    } else {
-      window.addEventListener('resize', alignWandToProgress, { passive:true });
-    }
-
-    reset();
   });
 }
 
@@ -1290,6 +1262,7 @@ function exportJSON(){
 document.addEventListener('DOMContentLoaded', ()=>{
   // Dianita solo verá contenido
   if (VIEW_MODE) document.body.classList.add('viewer');
+  initStarfield();
   initNotificationGuard();
   primeAudioContextOnInteraction();
   initFeelingSignals();

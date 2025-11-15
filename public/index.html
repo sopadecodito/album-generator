@@ -26,6 +26,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js" defer crossorigin="anonymous"></script>
 </head>
 <body>
+  <div id="starfield" class="starfield" aria-hidden="true"></div>
   <div id="fruitRain" class="fruit-rain" aria-hidden="true"></div>
   <main class="page">
 
@@ -69,14 +70,17 @@
         </article>
 
       <article class="card prose magical-note">
-        <h2>Mi mensaje</h2>
-        <button
-          type="button"
-          class="wand-emoji"
-          aria-controls="note"
-          aria-label="Arrastra la varita para revelar el mensaje"
-        >🪄</button>
-        <div class="spell-field">
+        <div class="light-toggle">
+          <h2>Mi mensaje</h2>
+          <button type="button" class="light-switch" aria-pressed="false">
+            <span class="switch-track" aria-hidden="true">
+              <span class="switch-thumb"></span>
+            </span>
+            <span class="switch-label">Encender la luz</span>
+          </button>
+        </div>
+        <div class="message-room" aria-live="polite">
+          <div class="light-beam" aria-hidden="true"></div>
           <p id="note" class="spell-text"></p>
         </div>
       </article>
