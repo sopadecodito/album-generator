@@ -63,6 +63,12 @@ const starfieldState = {
   leaveHandler: null
 };
 const STARFIELD_INTENSITY = 1.35;
+const DEFAULT_CONTACT_AVATAR = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22a%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f9%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23c7d2fe%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20rx%3D%2240%22%20fill%3D%22url%28%23a%29%22/%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2230%22%20r%3D%2216%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M16%2066c4-14%2044-14%2048%200z%22%20fill%3D%22%23e0e7ff%22/%3E%3C/svg%3E';
+const imessageState = {
+  typingTimer: null,
+  revealTimer: null,
+  messageReady: false
+};
 
 // ========= Helpers =========
 const $ = (sel) => document.querySelector(sel);
@@ -1084,6 +1090,64 @@ function highlightDATA(s){
   const safe = escapeHTML(s || '').replace(/\n/g,'<br>');
   return safe.replace(/\bDATA\b/g, '<span class="data-glow">DATA</span>');
 }
+function buildImessageTimestamp(ts){
+  if (ts) return ts;
+  try{
+    return `iMessage · ${new Date().toLocaleTimeString('es-MX',{ hour:'numeric', minute:'2-digit' })}`;
+  }catch{
+    return 'iMessage';
+  }
+}
+function updateImessageContact(config = {}){
+  const name = config.name || 'Amor';
+  const avatar = config.avatar || DEFAULT_CONTACT_AVATAR;
+  const subtitle = config.subtitle || 'iMessage';
+  const timestamp = buildImessageTimestamp(config.timestamp);
+  const nameNode = $('#imessageName');
+  const avatarNode = $('#imessageAvatar');
+  const subtitleNode = $('#imessageStatusLine');
+  const timeNode = $('#imessageTimestamp');
+  if (nameNode) nameNode.textContent = name;
+  if (avatarNode){
+    avatarNode.src = avatar;
+    avatarNode.alt = `Foto de ${name}`;
+  }
+  if (subtitleNode) subtitleNode.textContent = subtitle;
+  if (timeNode) timeNode.textContent = timestamp;
+}
+function cancelImessageTimers(){
+  if (imessageState.typingTimer){
+    clearTimeout(imessageState.typingTimer);
+    imessageState.typingTimer = null;
+  }
+  if (imessageState.revealTimer){
+    clearTimeout(imessageState.revealTimer);
+    imessageState.revealTimer = null;
+  }
+}
+function resetImessageVisuals(){
+  $('#imessageTyping')?.classList.remove('hidden');
+  $('#noteBubble')?.classList.remove('show');
+}
+function maybeStartImessageSequence(){
+  const card = document.querySelector('.magical-note');
+  const typing = $('#imessageTyping');
+  const bubble = $('#noteBubble');
+  if (!card || !typing || !bubble){
+    return;
+  }
+  if (!card.classList.contains('lit') || !imessageState.messageReady){
+    return;
+  }
+  cancelImessageTimers();
+  resetImessageVisuals();
+  imessageState.typingTimer = window.setTimeout(()=>{
+    typing.classList.add('hidden');
+  }, 2200);
+  imessageState.revealTimer = window.setTimeout(()=>{
+    bubble.classList.add('show');
+  }, 2600);
+}
 function initMagicNote(){
   const cards = Array.from(document.querySelectorAll('.magical-note'));
   if (!cards.length) return;
@@ -1091,20 +1155,29 @@ function initMagicNote(){
   cards.forEach(card => {
     const switchBtn = card.querySelector('.light-switch');
     const switchLabel = switchBtn?.querySelector('.switch-label');
-    if (!switchBtn || !switchLabel) return;
-
-    let isOn = false;
+    const autoMode = card.dataset.autoPlay || 'manual';
+    let isOn = switchBtn ? (autoMode === 'always' || (autoMode === 'viewer' && VIEW_MODE)) : true;
     const applyState = () => {
       card.classList.toggle('lit', isOn);
-      switchBtn.setAttribute('aria-pressed', isOn ? 'true' : 'false');
-      switchLabel.textContent = isOn ? 'Apagar la luz' : 'Encender la luz';
+      if (switchBtn && switchLabel){
+        switchBtn.setAttribute('aria-pressed', isOn ? 'true' : 'false');
+        switchLabel.textContent = isOn ? 'Apagar la luz' : 'Encender la luz';
+      }
+      if (isOn){
+        maybeStartImessageSequence();
+      }else{
+        cancelImessageTimers();
+        resetImessageVisuals();
+      }
     };
 
     applyState();
-    switchBtn.addEventListener('click', ()=>{
-      isOn = !isOn;
-      applyState();
-    });
+    if (switchBtn){
+      switchBtn.addEventListener('click', ()=>{
+        isOn = !isOn;
+        applyState();
+      });
+    }
   });
 }
 
@@ -1192,6 +1265,17 @@ async function renderFromTodayJson(){
     // Textos
     $('#lyric').innerHTML = highlightDATA(j.lyric_highlight || '');
     $('#note').textContent  = j.message || '';
+    updateImessageContact({
+      ...(j.message_contact || {}),
+      name: j.message_contact?.name || j.contact_name,
+      avatar: j.message_contact?.avatar || j.contact_avatar,
+      subtitle: j.message_contact?.subtitle || j.message_contact?.status,
+      timestamp: j.message_contact?.timestamp || j.message_timestamp
+    });
+    cancelImessageTimers();
+    resetImessageVisuals();
+    imessageState.messageReady = Boolean(j.message);
+    if (imessageState.messageReady) maybeStartImessageSequence();
     //$('#bibleRef').textContent = j.bible_ref || 'Pasaje';
     $('#bibleRef').textContent = j.bible_ref || '';
     $('#bibleText').textContent = j.bible_text || '';
@@ -1258,6 +1342,12 @@ function exportJSON(){
     weekly_playlist_embed: weeklySrc,
     lyric_highlight: $('#lyric')?.textContent || '',
     message: $('#note')?.textContent || '',
+    message_contact: {
+      name: $('#imessageName')?.textContent || '',
+      avatar: $('#imessageAvatar')?.getAttribute('src') || '',
+      subtitle: $('#imessageStatusLine')?.textContent || '',
+      timestamp: $('#imessageTimestamp')?.textContent || ''
+    },
     bible_ref: $('#bibleRef')?.textContent || '',
     bible_text: $('#bibleText')?.textContent || ''
   };

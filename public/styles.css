@@ -230,67 +230,11 @@ body.viewer .toolbar{display:none}
   flex-direction:column;
   gap:16px;
 }
-.light-toggle{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  flex-wrap:wrap;
-}
-.light-toggle h2{
+.message-title{
   margin:0;
-}
-.light-switch{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  border:0;
-  border-radius:999px;
-  padding:8px 16px 8px 12px;
-  background:linear-gradient(90deg, rgba(4,4,16,.85), rgba(50,18,66,.9));
-  color:#fff4ff;
-  font-weight:700;
-  cursor:pointer;
-  transition:transform .2s ease, box-shadow .2s ease;
-  box-shadow:0 12px 24px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.1);
-}
-.light-switch:focus-visible{
-  outline:2px solid color-mix(in oklch, var(--accent) 70%, white 20%);
-  outline-offset:3px;
-}
-.light-switch:active{
-  transform:translateY(1px);
-}
-.switch-track{
-  width:52px;
-  height:26px;
-  border-radius:999px;
-  background:rgba(255,255,255,.12);
-  position:relative;
-  flex-shrink:0;
-  transition:background .35s ease;
-}
-.switch-thumb{
-  position:absolute;
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  background:#fef6ef;
-  top:3px;
-  left:4px;
-  box-shadow:0 4px 12px rgba(0,0,0,.45);
-  transition:transform .35s ease, background .35s ease;
-}
-.magical-note.lit .switch-track{
-  background:color-mix(in oklch, var(--accent) 60%, rgba(255,255,255,.35));
-}
-.magical-note.lit .switch-thumb{
-  transform:translateX(22px);
-  background:#ffe39d;
-}
-.switch-label{
-  font-size:.95rem;
-  color:#fff7ff;
+  font-size:1.3rem;
+  letter-spacing:-0.01em;
+  color:var(--text);
 }
 .message-room{
   position:relative;
@@ -339,6 +283,193 @@ body.viewer .toolbar{display:none}
   opacity:1;
   filter:blur(0);
 }
+
+.imessage-case{
+  position:relative;
+  width:min(360px,100%);
+  margin:0 auto;
+  padding:18px 16px 14px;
+  border-radius:32px;
+  background:#fdfdfd;
+  color:#111;
+  font-family:"SF Pro Text","SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Nunito,sans-serif;
+  box-shadow:
+    inset 0 0 0 1px rgba(15,15,20,.06),
+    0 18px 36px rgba(3,3,12,.45);
+}
+.imessage-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  color:#1c1c1f;
+}
+.imessage-icon{
+  border:0;
+  background:rgba(0,0,0,.04);
+  color:#007aff;
+  font-weight:700;
+  border-radius:999px;
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  font-size:1.35rem;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+}
+.imessage-icon.back{
+  width:42px;
+  height:42px;
+  color:#007aff;
+  font-size:1.3rem;
+  background:rgba(0,122,255,.08);
+}
+.imessage-actions{
+  display:flex;
+  gap:10px;
+}
+.imessage-icon.circle,
+.imessage-icon.camera{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:rgba(0,0,0,.06);
+  color:transparent;
+}
+.imessage-icon.camera{
+  color:#0f63ff;
+  background:rgba(15,99,255,.12);
+  box-shadow:inset 0 0 0 1px rgba(15,99,255,.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+}
+.imessage-icon.camera svg{
+  width:22px;
+  height:18px;
+}
+.imessage-icon.camera .cam-shell{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+}
+.imessage-icon.camera .cam-body{
+  fill:currentColor;
+  stroke:none;
+}
+.imessage-icon.camera .cam-lens{
+  fill:transparent;
+  stroke:currentColor;
+  stroke-width:1.6;
+}
+.imessage-contact{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:1;
+}
+.imessage-avatar{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  object-fit:cover;
+  background:linear-gradient(180deg,#dcdcdc,#bcbcbc);
+  border:1px solid rgba(0,0,0,.08);
+  box-shadow:0 4px 10px rgba(0,0,0,.15);
+}
+.imessage-contact-meta{
+  display:flex;
+  flex-direction:column;
+  line-height:1.1;
+}
+.imessage-name{
+  font-weight:600;
+  color:#000;
+}
+.imessage-subtitle{
+  font-size:.85rem;
+  color:#717175;
+}
+.imessage-body{
+  margin-top:18px;
+  min-height:240px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:12px;
+}
+.imessage-typing{
+  align-self:flex-start;
+  background:#e5e5ea;
+  border-radius:18px 18px 18px 6px;
+  padding:10px 14px;
+  display:inline-flex;
+  gap:6px;
+  box-shadow:0 8px 16px rgba(0,0,0,.08);
+  transition:opacity .35s ease, transform .35s ease;
+}
+.imessage-typing.hidden{
+  opacity:0;
+  transform:translateY(8px);
+}
+.imessage-typing span{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#8f8f93;
+  animation:typingDot 1.1s ease-in-out infinite;
+}
+.imessage-typing span:nth-child(2){animation-delay:.15s}
+.imessage-typing span:nth-child(3){animation-delay:.3s}
+.imessage-bubble{
+  align-self:flex-start;
+  max-width:85%;
+  background:linear-gradient(180deg,#4da0ff,#297ffb);
+  color:#fff;
+  padding:12px 14px;
+  border-radius:20px 20px 20px 8px;
+  box-shadow:0 14px 28px rgba(41,127,251,.32);
+  opacity:0;
+  transform:translateY(12px) scale(.97);
+  transition:opacity .4s ease, transform .4s ease;
+  position:relative;
+}
+.imessage-bubble::after{
+  content:"";
+  position:absolute;
+  left:2px;
+  bottom:-1px;
+  width:14px;
+  height:14px;
+  background:linear-gradient(180deg,#4da0ff,#297ffb);
+  clip-path:polygon(0 100%,0 0,100% 100%);
+}
+.imessage-bubble.show{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+.imessage-foot{
+  margin-top:12px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  font-size:.78rem;
+  color:#8a8a8e;
+}
+.imessage-footline{
+  white-space:nowrap;
+}
+.imessage-bubble .spell-text{
+  color:#fff;
+  font-size:1rem;
+}
+
+@keyframes typingDot{
+  0%,100%{transform:translateY(0); opacity:.7;}
+  50%{transform:translateY(-3px); opacity:1;}
+}
+
 .prose h2{margin:.2rem 0 .8rem; color:var(--text)}
 .lyric{white-space:pre-wrap; line-height:1.55; color:var(--text)}
 
