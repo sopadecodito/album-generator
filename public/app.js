@@ -1090,6 +1090,37 @@ function highlightDATA(s){
   const safe = escapeHTML(s || '').replace(/\n/g,'<br>');
   return safe.replace(/\bDATA\b/g, '<span class="data-glow">DATA</span>');
 }
+function splitMessageIntoLines(message){
+  if (!message) return [];
+  return String(message)
+    .split(/\r?\n/)
+    .map(part => part.trim())
+    .filter(Boolean);
+}
+function renderImessageBubbles(message){
+  const thread = document.getElementById('imessageThread');
+  if (!thread) return [];
+  thread.innerHTML = '';
+  const lines = splitMessageIntoLines(message);
+  lines.forEach((text, idx)=>{
+    const bubble = document.createElement('div');
+    bubble.className = 'imessage-bubble';
+    bubble.setAttribute('role', 'article');
+    bubble.setAttribute('aria-live', 'polite');
+    const p = document.createElement('p');
+    p.className = 'spell-text';
+    if (idx === 0) p.id = 'note';
+    p.textContent = text;
+    bubble.appendChild(p);
+    thread.appendChild(bubble);
+  });
+  return lines;
+}
+function collectImessageMessage(){
+  const bubbles = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble .spell-text'));
+  if (!bubbles.length) return '';
+  return bubbles.map(node => node.textContent || '').join('\n');
+}
 function buildImessageTimestamp(ts){
   if (ts) return ts;
   try{
@@ -1127,13 +1158,15 @@ function cancelImessageTimers(){
 }
 function resetImessageVisuals(){
   $('#imessageTyping')?.classList.remove('hidden');
-  $('#noteBubble')?.classList.remove('show');
+  document.querySelectorAll('#imessageThread .imessage-bubble').forEach(bubble=>{
+    bubble.classList.remove('show');
+  });
 }
 function maybeStartImessageSequence(){
   const card = document.querySelector('.magical-note');
   const typing = $('#imessageTyping');
-  const bubble = $('#noteBubble');
-  if (!card || !typing || !bubble){
+  const bubbles = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble'));
+  if (!card || !typing || !bubbles.length){
     return;
   }
   if (!card.classList.contains('lit') || !imessageState.messageReady){
@@ -1145,7 +1178,7 @@ function maybeStartImessageSequence(){
     typing.classList.add('hidden');
   }, 2200);
   imessageState.revealTimer = window.setTimeout(()=>{
-    bubble.classList.add('show');
+    bubbles.forEach(bubble => bubble.classList.add('show'));
   }, 2600);
 }
 function initMagicNote(){
@@ -1264,7 +1297,7 @@ async function renderFromTodayJson(){
 
     // Textos
     $('#lyric').innerHTML = highlightDATA(j.lyric_highlight || '');
-    $('#note').textContent  = j.message || '';
+    const messageLines = renderImessageBubbles(j.message || '');
     updateImessageContact({
       ...(j.message_contact || {}),
       name: j.message_contact?.name || j.contact_name,
@@ -1274,7 +1307,7 @@ async function renderFromTodayJson(){
     });
     cancelImessageTimers();
     resetImessageVisuals();
-    imessageState.messageReady = Boolean(j.message);
+    imessageState.messageReady = messageLines.length > 0;
     if (imessageState.messageReady) maybeStartImessageSequence();
     //$('#bibleRef').textContent = j.bible_ref || 'Pasaje';
     $('#bibleRef').textContent = j.bible_ref || '';
@@ -1341,7 +1374,7 @@ function exportJSON(){
     weekly_playlist_embed_html: weeklyIframe ? weeklyIframe.outerHTML : '',
     weekly_playlist_embed: weeklySrc,
     lyric_highlight: $('#lyric')?.textContent || '',
-    message: $('#note')?.textContent || '',
+    message: collectImessageMessage(),
     message_contact: {
       name: $('#imessageName')?.textContent || '',
       avatar: $('#imessageAvatar')?.getAttribute('src') || '',

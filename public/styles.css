@@ -399,6 +399,12 @@ body.viewer .toolbar{display:none}
   justify-content:flex-end;
   gap:12px;
 }
+.imessage-thread{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:12px;
+}
 .imessage-typing{
   align-self:flex-start;
   background:#e5e5ea;
@@ -463,6 +469,8 @@ body.viewer .toolbar{display:none}
 .imessage-bubble .spell-text{
   color:#fff;
   font-size:1rem;
+  line-height:1.55;
+  min-height:auto;
 }
 
 @keyframes typingDot{
