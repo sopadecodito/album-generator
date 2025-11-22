@@ -1114,6 +1114,8 @@ function renderImessageBubbles(message){
     bubble.appendChild(p);
     thread.appendChild(bubble);
   });
+  const body = document.querySelector('.imessage-body');
+  if (body) body.scrollTop = 0;
   return lines;
 }
 function collectImessageMessage(){
