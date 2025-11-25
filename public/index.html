@@ -88,11 +88,11 @@
           <p id="lyric" class="lyric"></p>
         </article>
 
-      <article class="card prose magical-note lit">
-        <h2 class="message-title">Mi mensaje</h2>
-        <div class="message-room" aria-live="polite">
-          <div class="light-beam" aria-hidden="true"></div>
-          <div class="imessage-case" role="region" aria-label="Conversación estilo iMessage">
+        <article class="card prose magical-note lit">
+          <h2 class="message-title">Mi mensaje</h2>
+          <div class="message-room" aria-live="polite">
+            <div class="light-beam" aria-hidden="true"></div>
+            <div class="imessage-case" role="region" aria-label="Conversación estilo iMessage">
             <header class="imessage-header">
               <div class="imessage-contact">
                 <img id="imessageAvatar" class="imessage-avatar" src="favicon.gif" alt="Contacto" />
@@ -151,6 +151,22 @@
        <h2 id="bibleRef"></h2>
          <p id="bibleText"></p>
       <!--  </article>-->
+
+        <article class="card poll-card" id="lovePoll" aria-live="polite">
+          <h3 class="poll-heading">La pregunta del día</h3>
+          <div class="poll-question">
+            <span class="poll-emoji" aria-hidden="true">💭</span>
+            <div>
+              <p class="poll-title">Me amas aunque sea complicado de amar?</p>
+            </div>
+          </div>
+          <div class="poll-actions">
+            <button id="pollYes" class="poll-btn yes">Sí</button>
+            <button id="pollNo" class="poll-btn no">No</button>
+          </div>
+          <div class="poll-warning" id="pollWarning" role="status">¿POR QUÉ INSISTES TANTO EN DECIR QUE NO?</div>
+          <p class="poll-status muted small" id="pollStatus"></p>
+        </article>
 
         
  <!-- <aside class="card tracks">

@@ -289,6 +289,104 @@ body.viewer .toolbar{display:none}
   font-size:.95rem;
   color:var(--muted);
 }
+.poll-card{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  grid-column:1 / -1;
+  position:relative;
+}
+.poll-heading{
+  margin:0;
+  color:var(--text);
+  letter-spacing:-0.01em;
+  font-size:1.05rem;
+}
+.poll-question{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+.poll-title{
+  margin:0;
+  font-size:1.1rem;
+  color:var(--text);
+  letter-spacing:-0.01em;
+}
+.poll-sub{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:.9rem;
+}
+.poll-emoji{
+  font-size:1.4rem;
+}
+.poll-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.poll-btn{
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:12px;
+  padding:10px 14px;
+  background:rgba(255,255,255,.08);
+  color:var(--text);
+  font-weight:800;
+  cursor:pointer;
+  transition:transform .15s ease, border-color .2s ease, background .2s ease, opacity .2s ease;
+  min-width:88px;
+}
+.poll-btn:hover{
+  transform:translateY(-1px);
+  border-color:var(--accent);
+  background:rgba(255,255,255,.14);
+}
+.poll-btn.no.fading{
+  opacity:0;
+  transform:translateY(-6px);
+  pointer-events:none;
+  transition:opacity .18s ease, transform .18s ease;
+}
+.poll-btn.no.hint{
+  filter:brightness(1.12);
+}
+.poll-btn.no.runaway{
+  position:relative;
+  transition:transform .12s ease, opacity .18s ease;
+}
+.poll-btn.yes:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+.poll-results{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.poll-chip{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  padding:8px 12px;
+  color:var(--text);
+  font-weight:700;
+  box-shadow:0 6px 12px rgba(0,0,0,.18);
+}
+.poll-warning{
+  display:none;
+  margin:4px 0 0;
+  padding:10px 12px;
+  border-radius:12px;
+  background:linear-gradient(135deg, rgba(255,82,82,.85), rgba(255,20,92,.9));
+  color:#fff;
+  font-weight:800;
+  letter-spacing:-0.01em;
+  box-shadow:0 12px 24px rgba(0,0,0,.25);
+}
+.poll-warning.show{
+  display:inline-flex;
+}
 .magical-note{
   position:relative;
   overflow:hidden;
@@ -494,6 +592,17 @@ body.viewer .toolbar{display:none}
   align-items:flex-start;
   gap:12px;
 }
+.imessage-thread:not([data-ready="true"]) .reaction-stamp,
+.imessage-thread:not([data-ready="true"]) .reaction-picker{
+  display:none !important;
+}
+.imessage-bubble-wrap{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
+}
 .imessage-typing{
   align-self:flex-start;
   background:#e5e5ea;
@@ -563,6 +672,77 @@ body.viewer .toolbar{display:none}
   font-size:1rem;
   line-height:1.55;
   min-height:auto;
+}
+.reaction-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:8px;
+  flex-wrap:wrap;
+}
+.reaction-picker{
+  position:absolute;
+  right:-6px;
+  bottom:36px;
+  display:none;
+  align-items:center;
+  gap:6px;
+  background:rgba(16,16,20,.92);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;
+  padding:8px 10px;
+  box-shadow:0 12px 22px rgba(0,0,0,.35);
+  z-index:4;
+}
+.reaction-picker.open{
+  display:flex;
+}
+.reaction-option{
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.06);
+  border-radius:12px;
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  font-size:1.05rem;
+  box-shadow:0 6px 12px rgba(0,0,0,.16);
+}
+.reaction-option[data-selected="true"]{
+  border-color:#7c9bff;
+  box-shadow:0 0 0 1px rgba(124,155,255,.3), 0 6px 12px rgba(0,0,0,.12);
+}
+.reaction-stamp{
+  position:absolute;
+  right:-6px;
+  bottom:-4px;
+  background:#fff;
+  color:#0f63ff;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:999px;
+  padding:6px 8px;
+  min-width:30px;
+  min-height:26px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 10px 20px rgba(0,0,0,.2);
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .2s ease;
+  z-index:3;
+}
+.reaction-stamp,
+.reaction-picker{
+  display:none !important; /* oculto temporalmente */
+}
+.reaction-stamp.is-empty{
+  background:rgba(255,255,255,.75);
+  color:#7a7a80;
+}
+.reaction-stamp:hover{
+  transform:translateY(-1px);
+  box-shadow:0 14px 24px rgba(0,0,0,.25);
 }
 .imessage-photo{
   display:block;
@@ -712,6 +892,9 @@ h1, h2, h3, .artist{
   .card{
     border-radius: 14px;
     padding: 14px;
+  }
+  .poll-card{
+    gap:10px;
   }
 
   /* Tracklist al final y ancho completo */

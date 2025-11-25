@@ -8,6 +8,7 @@ const VIEW_MODE = params.get("view") !== "0";
 const TWITCH_CHANNEL = 'sopadecoditoo';
 const TWITCH_EMBED_SCRIPT = 'https://player.twitch.tv/js/embed/v1.js';
 const TWITCH_MIN_HEIGHT = 240;
+const REACTION_OPTIONS = ['👍🏻', '❤️', '🥺', '😡'];
 
 const FEELING_BUTTONS = [
   { id: 'miss', label: 'Te extraño' },
@@ -41,6 +42,7 @@ const notificationState = {
   requesting: false,
   audioCtx: null
 };
+const REACTIONS_TABLE = window.SUPABASE_REACTIONS_TABLE || 'imessage_reactions';
 const FRUIT_RAIN_DEFAULTS = ['apple', 'mango'];
 const fruitRainState = {
   root: null,
@@ -63,6 +65,23 @@ const starfieldState = {
   leaveHandler: null
 };
 const STARFIELD_INTENSITY = 1.35;
+const reactionState = {
+  map: {},
+  loaded: false,
+  client: null,
+  channel: null,
+  syncing: false,
+  syncedOnce: false
+};
+const pollState = {
+  client: null,
+  loading: false,
+  votes: { si: 0, no: 0 },
+  voted: false,
+  syncing: false,
+  noAttempts: 0,
+  warnTimer: null
+};
 const DEFAULT_CONTACT_AVATAR = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22a%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f9%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23c7d2fe%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20rx%3D%2240%22%20fill%3D%22url%28%23a%29%22/%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2230%22%20r%3D%2216%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M16%2066c4-14%2044-14%2048%200z%22%20fill%3D%22%23e0e7ff%22/%3E%3C/svg%3E';
 const imessageState = {
   typingTimer: null,
@@ -75,6 +94,246 @@ const $ = (sel) => document.querySelector(sel);
 const getParam = (k) => new URLSearchParams(location.search).get(k);
 const randBetween = (min, max) => min + Math.random() * (max - min);
 const dayMs = 24 * 60 * 60 * 1000;
+
+function ensureReactionsLoaded(){
+  if (reactionState.loaded) return;
+  reactionState.loaded = true;
+  try{
+    const raw = localStorage.getItem('imessageReactions');
+    reactionState.map = raw ? JSON.parse(raw) : {};
+  }catch{
+    reactionState.map = {};
+  }
+}
+function ensureReactionsClient(){
+  if (reactionState.client) return reactionState.client;
+  try{
+    if (feelingsState?.client) {
+      reactionState.client = feelingsState.client;
+      return reactionState.client;
+    }
+    if (window.supabase?.createClient && window.SUPABASE_URL && window.SUPABASE_ANON_KEY){
+      reactionState.client = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+      return reactionState.client;
+    }
+  }catch(err){
+    console.warn('No se pudo iniciar Supabase para reacciones', err);
+  }
+  return null;
+}
+function saveReactionsLocal(){
+  try{
+    localStorage.setItem('imessageReactions', JSON.stringify(reactionState.map));
+  }catch{/* ignore */}
+}
+function getReactionFor(lineKey){
+  ensureReactionsLoaded();
+  return reactionState.map?.[lineKey] || '';
+}
+function updateReactionStamp(lineKey, emoji){
+  const bubbles = Array.from(document.querySelectorAll('.imessage-bubble'));
+  const bubble = bubbles.find(node => node.dataset.lineKey === lineKey);
+  const wrap = bubble?.parentElement;
+  const stamp = wrap?.querySelector('.reaction-stamp');
+  if (!stamp) return;
+  if (emoji){
+    stamp.textContent = emoji;
+    stamp.dataset.active = 'true';
+    stamp.classList.remove('is-empty');
+    stamp.classList.add('show');
+  }else{
+    stamp.textContent = '🙂';
+    stamp.dataset.active = 'false';
+    stamp.classList.add('is-empty');
+    stamp.classList.remove('show');
+  }
+}
+function applyReactionLocal(lineKey, value, { persist=true } = {}){
+  if (!lineKey) return;
+  ensureReactionsLoaded();
+  if (value){
+    reactionState.map[lineKey] = value;
+  } else {
+    delete reactionState.map[lineKey];
+  }
+  if (persist) saveReactionsLocal();
+  updateReactionStamp(lineKey, value);
+}
+async function saveReactionRemote(lineKey, value){
+  const client = ensureReactionsClient();
+  if (!client) return;
+  try{
+    if (value){
+      await client.from(REACTIONS_TABLE).upsert(
+        { line_key: lineKey, reaction: value, updated_at: new Date().toISOString() },
+        { onConflict: 'line_key' }
+      );
+    }else{
+      await client.from(REACTIONS_TABLE).delete().eq('line_key', lineKey);
+    }
+  }catch(err){
+    console.warn('No se pudo guardar reacción en Supabase', err);
+  }
+}
+async function syncReactionsRemote(){
+  const client = ensureReactionsClient();
+  if (!client || reactionState.syncing) return;
+  reactionState.syncing = true;
+  try{
+    const { data, error } = await client
+      .from(REACTIONS_TABLE)
+      .select('line_key,reaction');
+    if (error) throw error;
+    ensureReactionsLoaded();
+    reactionState.map = {};
+    (data || []).forEach(row => {
+      if (row?.line_key) reactionState.map[row.line_key] = row.reaction || '';
+    });
+    reactionState.syncedOnce = true;
+    saveReactionsLocal();
+    refreshReactionStamps();
+    subscribeReactions();
+  }catch(err){
+    console.warn('Sync de reacciones falló', err);
+  }finally{
+    reactionState.syncing = false;
+  }
+}
+function subscribeReactions(){
+  const client = ensureReactionsClient();
+  if (!client) return;
+  if (reactionState.channel) return;
+  reactionState.channel = client
+    .channel(`public:${REACTIONS_TABLE}`)
+    .on('postgres_changes', { event:'INSERT', schema:'public', table: REACTIONS_TABLE }, payload=>{
+      const row = payload?.new;
+      applyReactionLocal(row?.line_key, row?.reaction || '', { persist:true });
+    })
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table: REACTIONS_TABLE }, payload=>{
+      const row = payload?.new;
+      applyReactionLocal(row?.line_key, row?.reaction || '', { persist:true });
+    })
+    .on('postgres_changes', { event:'DELETE', schema:'public', table: REACTIONS_TABLE }, payload=>{
+      const row = payload?.old;
+      applyReactionLocal(row?.line_key, '', { persist:true });
+    })
+    .subscribe(status=>{
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED'){
+        reactionState.channel = null;
+        setTimeout(()=> subscribeReactions(), 1500);
+      }
+    });
+}
+function refreshReactionStamps(){
+  const bubbles = Array.from(document.querySelectorAll('.imessage-bubble'));
+  bubbles.forEach(bubble=>{
+    const key = bubble.dataset.lineKey;
+    updateReactionStamp(key, getReactionFor(key));
+  });
+}
+function setReactionFor(lineKey, value){
+  if (!lineKey) return;
+  applyReactionLocal(lineKey, value);
+  saveReactionRemote(lineKey, value);
+}
+
+// ========= Poll (Supabase) =========
+async function loadPoll(){
+  const status = $('#pollStatus');
+  if (!status) return;
+  if (pollState.loading) return;
+  pollState.loading = true;
+  const client = getSupabaseClient();
+  if (!client){
+    status.textContent = '';
+    pollState.loading = false;
+    return;
+  }
+  status.textContent = '';
+  pollState.loading = false;
+}
+async function voteYes(){
+  const status = $('#pollStatus');
+  const yesBtn = $('#pollYes');
+  if (!yesBtn) return;
+  const client = getSupabaseClient();
+  if (!client){
+    status.textContent = 'Supabase no disponible';
+    return;
+  }
+  yesBtn.disabled = true;
+  status.textContent = 'Enviando voto...';
+  try{
+    await client.from('love_poll').insert({ option:'si', created_at: new Date().toISOString() });
+    status.textContent = '¡Voto enviado!';
+    pollState.voted = true;
+  }catch(err){
+    console.warn('voto si fail', err);
+    status.textContent = 'No se pudo votar, intenta de nuevo';
+    yesBtn.disabled = false;
+  }
+}
+function initPoll(){
+  const card = $('#lovePoll');
+  if (!card) return;
+  const yesBtn = $('#pollYes');
+  const noBtn = $('#pollNo');
+  const warning = $('#pollWarning');
+  const client = getSupabaseClient();
+  if (!client){
+    const status = $('#pollStatus');
+    if (status) status.textContent = 'Supabase no disponible';
+    return;
+  }
+  if (yesBtn){
+    yesBtn.addEventListener('click', voteYes);
+  }
+  if (noBtn){
+    let dodgeTimer = null;
+    const hideWarning = ()=>{
+      if (warning){
+        warning.classList.remove('show');
+      }
+      if (pollState.warnTimer){
+        clearTimeout(pollState.warnTimer);
+        pollState.warnTimer = null;
+      }
+    };
+    const showWarning = ()=>{
+      if (!warning) return;
+      warning.classList.add('show');
+      if (pollState.warnTimer) clearTimeout(pollState.warnTimer);
+      pollState.warnTimer = setTimeout(()=> {
+        warning.classList.remove('show');
+        pollState.warnTimer = null;
+      }, 3500);
+    };
+    const resetNo = ()=>{
+      noBtn.style.transform = '';
+      noBtn.classList.remove('runaway','fading','hint');
+      noBtn.style.opacity = '';
+      noBtn.style.pointerEvents = '';
+      dodgeTimer = null;
+    };
+    const dodge = ()=>{
+      if (dodgeTimer) return;
+      pollState.noAttempts = (pollState.noAttempts || 0) + 1;
+      if (pollState.noAttempts >= 3){
+        showWarning();
+        pollState.noAttempts = 0;
+      }
+      const dx = (Math.random()*70 + 50) * (Math.random()>0.5?1:-1);
+      const dy = (Math.random()*50 + 25) * (Math.random()>0.5?1:-1);
+      noBtn.classList.add('runaway');
+      noBtn.style.transform = `translate(${dx}px, ${dy}px)`;
+      noBtn.style.pointerEvents = 'none';
+      dodgeTimer = setTimeout(resetNo, 260);
+    };
+    noBtn.addEventListener('pointerenter', dodge);
+    noBtn.addEventListener('pointerdown', dodge);
+  }
+  loadPoll();
+}
 
 function lockBackground(){
   document.body.style.background = '';
@@ -1109,6 +1368,19 @@ function formatShortDate(dateStr){
     return '';
   }
 }
+function getSupabaseClient(){
+  if (feelingsState?.client) return feelingsState.client;
+  if (reactionState?.client) return reactionState.client;
+  if (window.supabase?.createClient && window.SUPABASE_URL && window.SUPABASE_ANON_KEY){
+    try{
+      return window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    }catch(err){
+      console.warn('No se pudo crear cliente supabase', err);
+      return null;
+    }
+  }
+  return null;
+}
 function splitMessageIntoLines(message){
   if (!message) return [];
   return String(message)
@@ -1128,16 +1400,90 @@ function parseImessageLine(line){
   }
   return { type:'text', text: line, raw: line };
 }
+function attachReactionControls(wrapper, bubble, lineKey){
+  if (!bubble || !wrapper) return;
+  const picker = document.createElement('div');
+  picker.className = 'reaction-picker';
+  const stamp = document.createElement('button');
+  stamp.type = 'button';
+  stamp.className = 'reaction-stamp reaction-trigger';
+
+  const apply = (emoji, { persist=true } = {})=>{
+    if (persist){
+      setReactionFor(lineKey, emoji);
+    }else{
+      applyReactionLocal(lineKey, emoji, { persist:false });
+    }
+    const current = getReactionFor(lineKey);
+    if (current){
+      stamp.textContent = current;
+      stamp.dataset.active = 'true';
+      stamp.classList.add('show');
+      stamp.classList.remove('is-empty');
+    }else{
+      stamp.textContent = '🙂';
+      stamp.dataset.active = 'false';
+      stamp.classList.add('is-empty');
+      stamp.classList.remove('show');
+    }
+  };
+
+  const current = getReactionFor(lineKey);
+  apply(current, { persist:false });
+
+  REACTION_OPTIONS.forEach(emoji=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'reaction-option';
+    btn.textContent = emoji;
+    btn.setAttribute('aria-label', `Reaccionar con ${emoji}`);
+    if (current === emoji) btn.dataset.selected = 'true';
+    btn.addEventListener('click', ()=>{
+      const next = getReactionFor(lineKey) === emoji ? '' : emoji;
+      apply(next);
+      picker.classList.remove('open');
+      Array.from(picker.querySelectorAll('.reaction-option')).forEach(o=> delete o.dataset.selected);
+      if (next === emoji) btn.dataset.selected = 'true';
+    });
+    picker.appendChild(btn);
+  });
+
+  let hoverTimer = null;
+  const openPicker = ()=> {
+    clearTimeout(hoverTimer);
+    picker.classList.add('open');
+  };
+  const closePicker = ()=> {
+    hoverTimer = setTimeout(()=> picker.classList.remove('open'), 140);
+  };
+
+  stamp.addEventListener('click', ()=>{
+    picker.classList.toggle('open');
+  });
+  stamp.addEventListener('mouseenter', openPicker);
+  stamp.addEventListener('mouseleave', closePicker);
+  picker.addEventListener('mouseenter', openPicker);
+  picker.addEventListener('mouseleave', closePicker);
+
+  wrapper.appendChild(picker);
+  wrapper.appendChild(bubble);
+  wrapper.appendChild(stamp);
+}
 function renderImessageBubbles(message){
   const thread = document.getElementById('imessageThread');
   if (!thread) return [];
+  thread.dataset.ready = 'false';
   thread.innerHTML = '';
   const lines = splitMessageIntoLines(message).map(parseImessageLine);
   lines.forEach((item, idx)=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'imessage-bubble-wrap';
     const bubble = document.createElement('div');
     bubble.className = 'imessage-bubble';
     bubble.setAttribute('role', 'article');
     bubble.setAttribute('aria-live', 'polite');
+    const lineKey = item.raw || `line-${idx}`;
+    bubble.dataset.lineKey = lineKey;
     if (item.raw) bubble.dataset.lineValue = item.raw;
     if (item.type === 'image' && item.src){
       bubble.classList.add('imessage-bubble--media');
@@ -1154,8 +1500,11 @@ function renderImessageBubbles(message){
       bubble.appendChild(p);
       if (!bubble.dataset.lineValue) bubble.dataset.lineValue = item.text || '';
     }
-    thread.appendChild(bubble);
+    attachReactionControls(wrap, bubble, lineKey);
+    thread.appendChild(wrap);
   });
+  const markReady = ()=> { thread.dataset.ready = 'true'; };
+  requestAnimationFrame(()=> requestAnimationFrame(markReady));
   const body = document.querySelector('.imessage-body');
   if (body) body.scrollTop = 0;
   return lines;
@@ -1361,6 +1710,7 @@ async function renderFromTodayJson(){
     resetImessageVisuals();
     imessageState.messageReady = messageLines.length > 0;
     if (imessageState.messageReady) maybeStartImessageSequence();
+    syncReactionsRemote();
     //$('#bibleRef').textContent = j.bible_ref || 'Pasaje';
     $('#bibleRef').textContent = j.bible_ref || '';
     $('#bibleText').textContent = j.bible_text || '';
@@ -1479,6 +1829,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   primeAudioContextOnInteraction();
   initFeelingSignals();
   initMagicNote();
+  initPoll();
 
   // Botones (solo los veo yo)
   $('#btnGen')?.addEventListener('click', ()=>{
