@@ -410,7 +410,7 @@ function syncNotificationPermission(forcedPermission){
   const permission = forcedPermission || Notification.permission;
 
   if (permission === 'granted'){
-    updateNotificationStatus('Notificaciones activadas ✅');
+    updateNotificationStatus('Notificaciones activadas');
     if (btn){
       btn.classList.add('hidden');
       btn.disabled = true;
@@ -622,10 +622,10 @@ async function emitFeeling(code, button){
         sender_ip: feelingsState.ip || 'unknown'
       });
     if (error) throw error;
-    setFeelingStatus('Enviado ✨');
+    setFeelingStatus('Enviado ');
   }catch(err){
     console.warn('Feeling send error', err);
-    showFeelingToast('No se pudo enviar 😔');
+    showFeelingToast('No se pudo enviar');
   }finally{
     if (button){
       button.classList.remove('sending');
