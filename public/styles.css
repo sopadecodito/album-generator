@@ -242,8 +242,21 @@ body.viewer .toolbar{display:none}
   background:rgba(255,255,255,.06);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
 }
+.pill-faces{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
 .pill-emoji{
   font-size:1.1rem;
+}
+.pill-gif{
+  width:28px;
+  height:28px;
+  border-radius:6px;
+  object-fit:cover;
+  box-shadow:0 3px 10px rgba(0,0,0,.25);
+  border:0;
 }
 .pill-text{
   display:flex;
