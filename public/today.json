@@ -1,12 +1,12 @@
 {
-  "title": "Bad Habit",
-  "artist": "Steve Lacy",
-  "date": "2022",
-  "cover": "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e026938311000a0e494a26986e5",
-  "spotify_embed": "https://open.spotify.com/intl-es/track/4k6Uh1HXdhtusDW5y8Gbvy?si=ea32b4fd2325486f",
-  "cloud_video_embed": "https://res.cloudinary.com/dqvekuit6/video/upload/v1763974657/YTDown.com_YouTube_Bad-Habit_Media_S2PVsv2K1Bg_001_1080p_idvxtv.mp4",
-  "lyric_highlight": "You always knew the way to wow me\nFuck around, get tongue-tied, and\nI turn it on, I make it rowdy\nThen carry on, but I'm not hidin'\nYou grabbin' me hard 'cause you know what you found\nIt's biscuits, it's gravy, babe",
-  "message": "A veces pienso (MILAGROO) que me hubiera gustado saber mucho antes que sentías algo por mi\nQue habria sido mas facil, que habriamos llegado antes, que tal vez nos habriamos ahorrado muchos putazos\nPero tambien entiendo que todo pasó como tenia que pasar\nLos dos tuvimos que vivir toda la basura que vivimos, rompernos un poquito, aprender, sanar\nPara poder encontrarnos cuando ya fueramos las versiones que nos mereciamos del otro\nPor eso tambien siento que no cambiaria nada\nSi las cosas hubieran sido diferentes no estariamos aquí\nNi yo editando este JSON ni tu leyendo este mensaje\nLo unico que se es que ahora que te encontré no pienso soltarte\n Me gusta mucho lo que tenemos, me gusta como se siente nuestra relacion\n Me gusta como encajamos\nCon nuestras historias, nuestros miedos y a veces hasta las cicatrices\n Me gusta quien soy contigo\nMe gusta quien eres conmigo\nY me emociona lo que todavia nos espera\n Puta madre te amo",
+  "title": "OJALA",
+  "artist": "Milo J, Bhavi",
+  "date": "2025",
+  "cover": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e0299a66dbad79409a0ce37ae7b",
+  "spotify_embed": "https://open.spotify.com/embed/track/1WEMFuKJ4DFsOO4NF3Ia6B?utm_source=generator",
+  "lyric_highlight": "Gracias, amor, por cargar con el peso de todos mis traumas\nPorque no puedo vivir, mucho menos si es sin ti\nSos esa curita de amor si una herida me sangra\nSi te cuesta ser feliz, solamente ven a mí\nOjalá tu carita sea un espejo de cristal\nAsí me amo un poco\nOjalá si tu corazón se encuentra en soledad\nMe mires a los ojos, eh",
+  "message": "Lo siento\nNo me he sentido muy bien\nPero sabes que te amo mucho\n![bua](media/bua.jpeg)\nAmo esa foto y te amo a ti\nY aunque hoy ande bajoneado, sigo aquí para lo que necesites\n![bua](media/buaa.jpeg)\nUn besote a las dos",
+  "together_since": "2025-10-26",
   "message_contact": {
     "name": "Arturo🫀🩷",
     "avatar": "media/me.jpg",
@@ -14,19 +14,6 @@
     "timestamp": "iMessage · hoy 9:41 a. m."
   },
   "bible_text": "",
-  "video": {
-    "src": "media/output-1080p.mp4",
-    "poster": "media/hq720.jpg",
-    "autoplay": false,
-    "muted": false,
-    "loop": false
-  },
-  "hero_video":{
-    "src": "media/output-1080p.mp4",
-    "autoplay": false,
-    "muted": false,
-    "loop": false
-  },
   "effects": {
     "fruitRain": {
       "enabled": true,
@@ -44,6 +31,6 @@
     { "src": "media/7.jpeg", "alt": "vida" },
     { "src": "media/8.jpeg", "alt": "mua" }
   ],
-  "weekly_playlist_embed": "https://open.spotify.com/embed/playlist/3GQOCZukoWznHQjZaYcAbj?utm_source=generator"
+  "weekly_playlist_embed": "https://open.spotify.com/embed/track/0QJ9OZKxMpaWOYGDsmnvVQ?utm_source=generator"
 
 }

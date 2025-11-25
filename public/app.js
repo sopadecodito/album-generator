@@ -74,6 +74,7 @@ const imessageState = {
 const $ = (sel) => document.querySelector(sel);
 const getParam = (k) => new URLSearchParams(location.search).get(k);
 const randBetween = (min, max) => min + Math.random() * (max - min);
+const dayMs = 24 * 60 * 60 * 1000;
 
 function lockBackground(){
   document.body.style.background = '';
@@ -1090,6 +1091,24 @@ function highlightDATA(s){
   const safe = escapeHTML(s || '').replace(/\n/g,'<br>');
   return safe.replace(/\bDATA\b/g, '<span class="data-glow">DATA</span>');
 }
+function calcDaysSince(dateStr){
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  const now = new Date();
+  const diff = now.getTime() - d.getTime();
+  if (diff < 0) return 0;
+  return Math.floor(diff / dayMs);
+}
+function formatShortDate(dateStr){
+  try{
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'numeric' });
+  }catch{
+    return '';
+  }
+}
 function splitMessageIntoLines(message){
   if (!message) return [];
   return String(message)
@@ -1097,21 +1116,44 @@ function splitMessageIntoLines(message){
     .map(part => part.trim())
     .filter(Boolean);
 }
+function parseImessageLine(line){
+  const markdownImg = line.match(/^!\[(.*?)\]\((.+?)\)$/);
+  if (markdownImg){
+    return { type:'image', src: markdownImg[2], alt: markdownImg[1] || 'Foto', raw: line };
+  }
+  const simpleImg = line.match(/^\[?img\]?:?\s*(.+)$/i);
+  if (simpleImg){
+    const src = simpleImg[1].trim();
+    return { type:'image', src, alt: 'Foto', raw: `img:${src}` };
+  }
+  return { type:'text', text: line, raw: line };
+}
 function renderImessageBubbles(message){
   const thread = document.getElementById('imessageThread');
   if (!thread) return [];
   thread.innerHTML = '';
-  const lines = splitMessageIntoLines(message);
-  lines.forEach((text, idx)=>{
+  const lines = splitMessageIntoLines(message).map(parseImessageLine);
+  lines.forEach((item, idx)=>{
     const bubble = document.createElement('div');
     bubble.className = 'imessage-bubble';
     bubble.setAttribute('role', 'article');
     bubble.setAttribute('aria-live', 'polite');
-    const p = document.createElement('p');
-    p.className = 'spell-text';
-    if (idx === 0) p.id = 'note';
-    p.textContent = text;
-    bubble.appendChild(p);
+    if (item.raw) bubble.dataset.lineValue = item.raw;
+    if (item.type === 'image' && item.src){
+      bubble.classList.add('imessage-bubble--media');
+      const img = document.createElement('img');
+      img.className = 'imessage-photo';
+      img.src = item.src;
+      img.alt = item.alt || 'Foto';
+      bubble.appendChild(img);
+    }else{
+      const p = document.createElement('p');
+      p.className = 'spell-text';
+      if (idx === 0) p.id = 'note';
+      p.textContent = item.text || '';
+      bubble.appendChild(p);
+      if (!bubble.dataset.lineValue) bubble.dataset.lineValue = item.text || '';
+    }
     thread.appendChild(bubble);
   });
   const body = document.querySelector('.imessage-body');
@@ -1119,9 +1161,17 @@ function renderImessageBubbles(message){
   return lines;
 }
 function collectImessageMessage(){
-  const bubbles = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble .spell-text'));
+  const bubbles = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble'));
   if (!bubbles.length) return '';
-  return bubbles.map(node => node.textContent || '').join('\n');
+  return bubbles
+    .map(node => {
+      const raw = node.dataset.lineValue || '';
+      if (raw) return raw;
+      const text = node.querySelector('.spell-text')?.textContent || '';
+      return text;
+    })
+    .filter(Boolean)
+    .join('\n');
 }
 function buildImessageTimestamp(ts){
   if (ts) return ts;
@@ -1318,6 +1368,31 @@ async function renderFromTodayJson(){
     // Extras
     $('#date').textContent = j.date || '';
     $('#duration').textContent = '';
+    const togetherSince = j.together_since || j.togetherSince || '';
+    const togetherCard = $('#togetherCard');
+    if (togetherCard) {
+      const daysTogether = calcDaysSince(togetherSince);
+      const sinceText = formatShortDate(togetherSince);
+      const daysNode = $('#togetherDaysBig');
+      const labelNode = $('#togetherDaysLabel');
+      const dateNode = $('#togetherDate');
+      if (daysTogether !== null) {
+        if (daysNode) {
+          const unit = daysTogether === 1 ? 'día' : 'días';
+          daysNode.textContent = `${daysTogether} ${unit}`;
+        }
+        if (dateNode) dateNode.textContent = sinceText || togetherSince || '—';
+        if (labelNode) {
+          const milestone = (daysTogether >= 30 && daysTogether <= 32) ? '1 mes hoy ' : 'y contando';
+          labelNode.textContent = milestone;
+        }
+        togetherCard.classList.remove('hidden');
+        togetherCard.dataset.since = togetherSince;
+      } else {
+        togetherCard.classList.add('hidden');
+        delete togetherCard.dataset.since;
+      }
+    }
     $('#tracks').innerHTML = '';
     $('#totalDur').textContent = '';
 
@@ -1384,7 +1459,8 @@ function exportJSON(){
       timestamp: $('#imessageTimestamp')?.textContent || ''
     },
     bible_ref: $('#bibleRef')?.textContent || '',
-    bible_text: $('#bibleText')?.textContent || ''
+    bible_text: $('#bibleText')?.textContent || '',
+    together_since: $('#togetherCard')?.dataset?.since || ''
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
