@@ -43,7 +43,7 @@ const notificationState = {
   audioCtx: null
 };
 const REACTIONS_TABLE = window.SUPABASE_REACTIONS_TABLE || 'imessage_reactions';
-const FRUIT_RAIN_DEFAULTS = ['apple', 'mango'];
+const FRUIT_RAIN_DEFAULTS = ['mango', 'sandia'];
 const fruitRainState = {
   root: null,
   active: false,
@@ -403,7 +403,11 @@ function ensureFruitRainRoot(){
   return fruitRainState.root;
 }
 function createFruitNode(type){
-  const rootClass = type === 'mango' ? 'mango' : 'apple';
+  const rootClass = type === 'mango'
+    ? 'mango'
+    : type === 'sandia'
+      ? 'sandia'
+      : 'apple';
   const node = document.createElement('span');
   node.className = `fruit ${rootClass}`;
   const size = 18 + Math.random() * 18;

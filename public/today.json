@@ -18,7 +18,7 @@
     "fruitRain": {
       "enabled": true,
       "density": 20,
-      "fruits": ["apple", "mango"]
+      "fruits": ["mango", "sandia"]
     }
   },
   "gallery": [

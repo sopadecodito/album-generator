@@ -66,6 +66,47 @@ body.bg-locked{
   opacity:.35;
 }
 
+/* ---------- Lluvia de frutas ---------- */
+.fruit-rain{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:2;
+  opacity:0;
+  transition:opacity .5s ease;
+}
+.fruit-rain[data-active="true"]{opacity:1;}
+.fruit{
+  position:absolute;
+  top:-12%;
+  left:var(--x);
+  width:var(--size);
+  height:var(--size);
+  opacity:var(--alpha);
+  transform:translate3d(0,-120px,0) rotate(var(--spin-start));
+  transform-origin:center;
+  animation:fruitFall var(--duration) linear var(--delay) infinite;
+  filter:drop-shadow(0 10px 16px rgba(0,0,0,.35));
+  background-repeat:no-repeat;
+  background-size:contain;
+  background-position:center;
+}
+@keyframes fruitFall{
+  from{transform:translate3d(0,-120px,0) rotate(var(--spin-start));}
+  to{transform:translate3d(0,110vh,0) rotate(var(--spin-end));}
+}
+.fruit.apple{
+  background-image:linear-gradient(165deg, #ff6b6b 0%, #d7266d 60%, #8f0d45 100%);
+  border-radius:50%;
+}
+.fruit.mango{
+  background-image:url("media/mango.png");
+}
+.fruit.sandia{
+  background-image:url("media/sandia.webp");
+}
+
 /* ---------- Liquid glass oscuro ---------- */
 .shell{
   background:linear-gradient(180deg, var(--glass-1), var(--glass-2));
