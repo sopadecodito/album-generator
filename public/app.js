@@ -531,6 +531,24 @@ function msToMin(ms){
   return `${m}:${String(s).padStart(2,'0')}`;
 }
 
+function rgbToHsl(r, g, b){
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  const d = max - min;
+  if (d !== 0){
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch(max){
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  return [h, s, l];
+}
+
 // ========= oEmbed =========
 async function fetchOEmbed(url){
   const res = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`, {cache:'no-store'});
@@ -572,19 +590,44 @@ async function extractPalette(imgUrl, n=5){
   for(let i=0;i<data.length;i+=4){
     const r=data[i], g=data[i+1], b=data[i+2], a=data[i+3];
     if(a<200) continue;
-    const key = `${r>>4}-${g>>4}-${b>>4}`;
-    map.set(key, (map.get(key)||0)+1);
+    const [hue, sat, light] = rgbToHsl(r, g, b);
+    if (sat < 0.08 && light < 0.22) continue; // ignora grises muy oscuros
+
+    // Agrupa en cubetas pequeñas pero suficientes para mantener variación
+    const key = `${Math.round(r/12)}-${Math.round(g/12)}-${Math.round(b/12)}`;
+    const entry = map.get(key) || { count:0, sumR:0, sumG:0, sumB:0, score:0 };
+    entry.count++;
+    entry.sumR += r; entry.sumG += g; entry.sumB += b;
+    // pondera saturación y luz para premiar colores vivos y medios
+    const satBoost = 0.6 + sat; // 0.6–1.6
+    const lightCenter = 1 - Math.abs(light - 0.5) * 1.2; // premia luz media
+    const pixScore = satBoost * (0.6 + Math.max(0, lightCenter));
+    entry.score += pixScore;
+    map.set(key, entry);
   }
-  const sorted = [...map.entries()].sort((a,b)=>b[1]-a[1]).slice(0, n);
-  return sorted.map(([key])=>{
-    const [R,G,B] = key.split('-').map(x=> (parseInt(x,10)<<4)+8 );
-    return `rgb(${R}, ${G}, ${B})`;
-  });
+  const sorted = [...map.values()]
+    .map(v=>{
+      const avgR = Math.round(v.sumR / v.count);
+      const avgG = Math.round(v.sumG / v.count);
+      const avgB = Math.round(v.sumB / v.count);
+      const weight = v.score * Math.log1p(v.count);
+      return { color:`rgb(${avgR}, ${avgG}, ${avgB})`, weight };
+    })
+    .sort((a,b)=>b.weight - a.weight)
+    .slice(0, n);
+
+  if (!sorted.length) return ['rgb(167, 139, 250)', 'rgb(255, 91, 211)'];
+  return sorted.map(it => it.color);
 }
 function applyPalette(cols){
   if(!cols || !cols.length) return;
-  document.documentElement.style.setProperty('--accent', cols[0]);
-  document.documentElement.style.setProperty('--accent-2', cols[1] || cols[0]);
+  const primary = cols[0];
+  const secondary = cols[1] || primary;
+  const root = document.documentElement?.style;
+  if (!root) return;
+
+  root.setProperty('--accent', primary);
+  root.setProperty('--accent-2', secondary);
 }
 
 // ========= Util para usar iframe del JSON de forma segura =========
