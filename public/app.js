@@ -43,7 +43,7 @@ const notificationState = {
   audioCtx: null
 };
 const REACTIONS_TABLE = window.SUPABASE_REACTIONS_TABLE || 'imessage_reactions';
-const FRUIT_RAIN_DEFAULTS = ['skulls'];
+const FRUIT_RAIN_DEFAULTS = ['mango', 'sandia'];
 const fruitRainState = {
   root: null,
   active: false,
@@ -407,9 +407,7 @@ function createFruitNode(type){
     ? 'mango'
     : type === 'sandia'
       ? 'sandia'
-      : (type === 'skulls' || type === 'skull')
-        ? 'skulls'
-        : 'apple';
+      : 'apple';
   const node = document.createElement('span');
   node.className = `fruit ${rootClass}`;
   const size = 18 + Math.random() * 18;
@@ -448,12 +446,8 @@ function disableFruitRain(){
   fruitRainState.current = null;
 }
 function syncFruitRain(entry){
-  const cfg = entry?.effects?.fruitRain;
-  if (cfg?.enabled){
-    enableFruitRain(cfg);
-  } else {
-    disableFruitRain();
-  }
+  // Lluvia desactivada a petición: siempre limpiamos
+  disableFruitRain();
 }
 
 function initStarfield(){
