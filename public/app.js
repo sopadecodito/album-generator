@@ -1789,6 +1789,12 @@ async function renderFromTodayJson(){
     $('#tracks').innerHTML = '';
     $('#totalDur').textContent = '';
 
+    const pollCard = $('#lovePoll');
+    if (pollCard) {
+      const shouldHidePoll = j.poll_enabled === false || j.poll_disabled === true || j.poll_hidden === true;
+      pollCard.classList.toggle('hidden', shouldHidePoll);
+    }
+
     // ==== Video opcional (MP4) ====
     const box = document.querySelector('#videoBox');
     if (box) {
