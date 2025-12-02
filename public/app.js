@@ -1791,7 +1791,9 @@ async function renderFromTodayJson(){
 
     const pollCard = $('#lovePoll');
     if (pollCard) {
-      const shouldHidePoll = j.poll_enabled === false || j.poll_disabled === true || j.poll_hidden === true;
+      const isEnabled = j.poll_enabled === true || j.poll_enabled === 'true';
+      const isDisabled = j.poll_disabled === true || j.poll_hidden === true;
+      const shouldHidePoll = !isEnabled || isDisabled;
       pollCard.classList.toggle('hidden', shouldHidePoll);
     }
 
@@ -1873,6 +1875,10 @@ function exportJSON(){
 document.addEventListener('DOMContentLoaded', ()=>{
   // Dianita solo verá contenido
   if (VIEW_MODE) document.body.classList.add('viewer');
+  if (VIEW_MODE) {
+    const pollCard = document.getElementById('lovePoll');
+    if (pollCard) pollCard.classList.add('hidden');
+  }
   initStarfield();
   initNotificationGuard();
   primeAudioContextOnInteraction();
