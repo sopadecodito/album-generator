@@ -49,6 +49,7 @@ const fruitRainState = {
   active: false,
   current: null
 };
+const EMPTY_INBOX_TEXT = 'Bandeja vacia:(';
 const STAR_LAYERS = [
   { count: 58, size: [0.8, 1.6], parallax: 26, opacity: [0.35, 0.7] },
   { count: 44, size: [1.6, 2.6], parallax: 46, opacity: [0.45, 0.8] },
@@ -1512,22 +1513,36 @@ function attachReactionControls(wrapper, bubble, lineKey){
   wrapper.appendChild(bubble);
   wrapper.appendChild(stamp);
 }
-function renderImessageBubbles(message){
+function revealImessageBubblesInstant(){
+  $('#imessageTyping')?.classList.add('hidden');
+  document.querySelectorAll('#imessageThread .imessage-bubble').forEach(bubble=>{
+    bubble.classList.add('show');
+    bubble.style.opacity = '1';
+    bubble.style.transform = 'translateY(0) scale(1)';
+  });
+}
+function renderImessageBubbles(message, options = {}){
   const thread = document.getElementById('imessageThread');
   if (!thread) return [];
+  const { placeholder=false } = options;
   thread.dataset.ready = 'false';
   thread.innerHTML = '';
-  const lines = splitMessageIntoLines(message).map(parseImessageLine);
+  const lines = placeholder
+    ? [{ type:'text', text: String(message || EMPTY_INBOX_TEXT).trim() || EMPTY_INBOX_TEXT, raw:'' }]
+    : splitMessageIntoLines(message).map(parseImessageLine);
   lines.forEach((item, idx)=>{
     const wrap = document.createElement('div');
     wrap.className = 'imessage-bubble-wrap';
+    if (placeholder) wrap.dataset.placeholder = 'true';
     const bubble = document.createElement('div');
     bubble.className = 'imessage-bubble';
+    if (placeholder) bubble.classList.add('imessage-bubble--placeholder');
     bubble.setAttribute('role', 'article');
     bubble.setAttribute('aria-live', 'polite');
-    const lineKey = item.raw || `line-${idx}`;
+    const lineKey = placeholder ? `placeholder-${idx}` : (item.raw || `line-${idx}`);
     bubble.dataset.lineKey = lineKey;
-    if (item.raw) bubble.dataset.lineValue = item.raw;
+    if (placeholder) bubble.dataset.placeholder = 'true';
+    if (!placeholder && item.raw) bubble.dataset.lineValue = item.raw;
     if (item.type === 'image' && item.src){
       bubble.classList.add('imessage-bubble--media');
       const img = document.createElement('img');
@@ -1543,7 +1558,9 @@ function renderImessageBubbles(message){
       bubble.appendChild(p);
       if (!bubble.dataset.lineValue) bubble.dataset.lineValue = item.text || '';
     }
-    attachReactionControls(wrap, bubble, lineKey);
+    if (!placeholder) {
+      attachReactionControls(wrap, bubble, lineKey);
+    }
     thread.appendChild(wrap);
   });
   const markReady = ()=> { thread.dataset.ready = 'true'; };
@@ -1557,6 +1574,7 @@ function collectImessageMessage(){
   if (!bubbles.length) return '';
   return bubbles
     .map(node => {
+      if (node.dataset.placeholder === 'true') return '';
       const raw = node.dataset.lineValue || '';
       if (raw) return raw;
       const text = node.querySelector('.spell-text')?.textContent || '';
@@ -1741,7 +1759,11 @@ async function renderFromTodayJson(){
 
     // Textos
     $('#lyric').innerHTML = highlightDATA(j.lyric_highlight || '');
-    const messageLines = renderImessageBubbles(j.message || '');
+    let messageLines = renderImessageBubbles(j.message || '');
+    const usedPlaceholder = messageLines.length === 0;
+    if (usedPlaceholder){
+      messageLines = renderImessageBubbles(EMPTY_INBOX_TEXT, { placeholder:true });
+    }
     updateImessageContact({
       ...(j.message_contact || {}),
       name: j.message_contact?.name || j.contact_name,
@@ -1752,7 +1774,27 @@ async function renderFromTodayJson(){
     cancelImessageTimers();
     resetImessageVisuals();
     imessageState.messageReady = messageLines.length > 0;
-    if (imessageState.messageReady) maybeStartImessageSequence();
+    if (imessageState.messageReady){
+      if (usedPlaceholder){
+        // Solo placeholder: muestra typing ~2s y luego revela el vacío.
+        imessageState.typingTimer = window.setTimeout(()=>{
+          $('#imessageTyping')?.classList.add('hidden');
+          revealImessageBubblesInstant();
+        }, 2000);
+        // Rescate extra: si algo sale mal, revela forzosamente.
+        setTimeout(()=>{
+          const anyShown = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble')).some(b=>b.classList.contains('show'));
+          if (!anyShown) revealImessageBubblesInstant();
+        }, 2600);
+      }else{
+        maybeStartImessageSequence();
+        // Rescate por si algún timer falla: revela después de ~3.2s.
+        setTimeout(()=>{
+          const anyShown = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble')).some(b=>b.classList.contains('show'));
+          if (!anyShown) revealImessageBubblesInstant();
+        }, 3200);
+      }
+    }
     syncReactionsRemote();
     //$('#bibleRef').textContent = j.bible_ref || 'Pasaje';
     $('#bibleRef').textContent = j.bible_ref || '';

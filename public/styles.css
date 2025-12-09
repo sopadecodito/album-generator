@@ -700,6 +700,20 @@ body.viewer .toolbar{display:none}
   background:linear-gradient(180deg,#4da0ff,#297ffb);
   clip-path:polygon(0 100%,0 0,100% 100%);
 }
+.imessage-bubble--placeholder{
+  background:linear-gradient(180deg,#e5e5ea,#d7d7dc);
+  color:#2f2f35;
+  box-shadow:0 12px 20px rgba(0,0,0,.15);
+  border:1px solid rgba(0,0,0,.05);
+}
+.imessage-bubble--placeholder::after{
+  background:linear-gradient(180deg,#e5e5ea,#d7d7dc);
+}
+.imessage-bubble--placeholder .spell-text{
+  color:#1f1f26;
+  opacity:.95;
+  font-weight:700;
+}
 .imessage-bubble.show{
   opacity:1;
   transform:translateY(0) scale(1);
