@@ -1,17 +1,21 @@
 {
-  "title": "I don't care if you're contagious",
+  "title": "A match into water",
   "artist": "Pierce the veil",
   "date": "2010",
   "cover": "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e023c8674afa47336f571b13ebd",
-  "spotify_embed": "https://open.spotify.com/embed/track/69okqylQdHUe90a70Q2ued?utm_source=generator",
-  "lyric_highlight": "And I don't care if you're sick\nI don't care if you're contagious\nI would kiss you even if you were dead\nWould somebody make me go blind for the rest of my life?\n'Cause I'd do anything to hold your hand",
-  "message": "",
+  "spotify_embed": "https://open.spotify.com/embed/track/54MXF9I8s3DuiQo3g0gZ5k?utm_source=generator",
+  "lyric_highlight": "I kissed the scars on her skin\nI still think you're beautiful\nAnd I don't ever wanna lose my best friend\nI screamed out: God, you vulture!\nBring her back, or take me with her",
+  "message": "No me salian las palabras en un mensaje\nAsi que te dejo un video donde te hablo o por lo menos intento hablar",
+  "message_embed": {
+    "src": "https://res.cloudinary.com/dqvekuit6/video/upload/v1765266744/lv_0_20251208211350_1_f3nu1i.mp4",
+    "title": "BABOSO HABLA POR 5 MINUTOS Y NO DICE NADA"
+  },
   "together_since": "2025-10-26",
   "message_contact": {
     "name": "Arturo🫀🩷",
     "avatar": "media/me.jpg",
     "subtitle": "iMessage",
-    "timestamp": "iMessage · ayer 11:52 p. m."
+    "timestamp": "iMessage · hoy 2:08 a. m."
   },
   "bible_text": "",
   "poll_enabled": false,
@@ -35,5 +39,4 @@
   "weekly_playlist_embed": "https://open.spotify.com/embed/track/5rc7178sa2YRDlBFBHY0e8?utm_source=generator"
 
 }
-
 

@@ -87,7 +87,8 @@ const DEFAULT_CONTACT_AVATAR = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//
 const imessageState = {
   typingTimer: null,
   revealTimer: null,
-  messageReady: false
+  messageReady: false,
+  embed: null
 };
 
 // ========= Helpers =========
@@ -1444,6 +1445,30 @@ function parseImessageLine(line){
   }
   return { type:'text', text: line, raw: line };
 }
+function normalizeMessageEmbed(embed){
+  if (!embed) return null;
+  if (typeof embed === 'string'){
+    const trimmed = embed.trim();
+    if (!trimmed) return null;
+    const isHtml = trimmed.startsWith('<');
+    return isHtml ? { html: trimmed } : { src: trimmed };
+  }
+  if (typeof embed === 'object'){
+    const src = (embed.src || embed.url || embed.href || embed.embed || '').trim();
+    const html = (embed.html || embed.embed_html || '').trim();
+    const title = (embed.title || embed.caption || embed.label || '').trim();
+    const poster = (embed.poster || embed.cover || '').trim();
+    const type = (embed.type || embed.kind || '').trim();
+    const normalized = {};
+    if (title) normalized.title = title;
+    if (src) normalized.src = src;
+    if (html) normalized.html = html;
+    if (poster) normalized.poster = poster;
+    if (type) normalized.type = type;
+    return (normalized.src || normalized.html) ? normalized : null;
+  }
+  return null;
+}
 function attachReactionControls(wrapper, bubble, lineKey){
   if (!bubble || !wrapper) return;
   const picker = document.createElement('div');
@@ -1569,6 +1594,56 @@ function renderImessageBubbles(message, options = {}){
   if (body) body.scrollTop = 0;
   return lines;
 }
+function renderMessageEmbed(embedInput){
+  const thread = document.getElementById('imessageThread');
+  imessageState.embed = null;
+  if (!thread) return false;
+  const embed = normalizeMessageEmbed(embedInput);
+  imessageState.embed = embed || null;
+  if (!embed) return false;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'imessage-bubble-wrap';
+  const bubble = document.createElement('div');
+  bubble.className = 'imessage-bubble imessage-bubble--embed';
+  bubble.setAttribute('role', 'article');
+  bubble.setAttribute('aria-live', 'polite');
+
+  const rawKey = embed.src || embed.html || 'embed';
+  const lineKey = `embed-${rawKey}`.replace(/\s+/g, '-');
+  bubble.dataset.lineKey = lineKey;
+  bubble.dataset.lineValue = embed.src || embed.html || '';
+  if (embed.html) bubble.dataset.embedHtml = embed.html;
+  if (embed.type) bubble.dataset.embedType = embed.type;
+
+  const captionText = embed.title || 'Te dejo un video';
+  if (captionText){
+    const caption = document.createElement('p');
+    caption.className = 'spell-text embed-caption';
+    caption.textContent = captionText;
+    bubble.appendChild(caption);
+  }
+
+  const embedBox = document.createElement('div');
+  embedBox.className = 'imessage-embed';
+  if (embed.html){
+    embedBox.innerHTML = embed.html;
+  } else if (embed.src){
+    const video = document.createElement('video');
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.src = embed.src;
+    video.setAttribute('aria-label', captionText || 'Video');
+    if (embed.poster) video.poster = embed.poster;
+    embedBox.appendChild(video);
+  }
+
+  bubble.appendChild(embedBox);
+  attachReactionControls(wrap, bubble, lineKey);
+  thread.appendChild(wrap);
+  return true;
+}
 function collectImessageMessage(){
   const bubbles = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble'));
   if (!bubbles.length) return '';
@@ -1582,6 +1657,26 @@ function collectImessageMessage(){
     })
     .filter(Boolean)
     .join('\n');
+}
+function collectMessageEmbed(){
+  if (imessageState.embed && (imessageState.embed.src || imessageState.embed.html)){
+    return imessageState.embed;
+  }
+  const bubble = document.querySelector('.imessage-bubble--embed');
+  if (!bubble) return null;
+  const src = bubble.dataset.lineValue || bubble.querySelector('video')?.getAttribute('src') || bubble.querySelector('iframe')?.getAttribute('src') || '';
+  const poster = bubble.querySelector('video')?.getAttribute('poster') || '';
+  const html = bubble.dataset.embedHtml || '';
+  const title = bubble.querySelector('.embed-caption')?.textContent || '';
+  const type = bubble.dataset.embedType || '';
+  if (!src && !html) return null;
+  const payload = {};
+  if (title) payload.title = title;
+  if (src) payload.src = src;
+  if (poster) payload.poster = poster;
+  if (html) payload.html = html;
+  if (type) payload.type = type;
+  return payload;
 }
 function buildImessageTimestamp(ts){
   if (ts) return ts;
@@ -1759,8 +1854,11 @@ async function renderFromTodayJson(){
 
     // Textos
     $('#lyric').innerHTML = highlightDATA(j.lyric_highlight || '');
+    imessageState.embed = null;
+    const messageEmbed = j.message_embed || j.messageEmbed || j.message_embed_html || j.messageEmbedHtml;
     let messageLines = renderImessageBubbles(j.message || '');
-    const usedPlaceholder = messageLines.length === 0;
+    const hasEmbedBubble = renderMessageEmbed(messageEmbed);
+    const usedPlaceholder = messageLines.length === 0 && !hasEmbedBubble;
     if (usedPlaceholder){
       messageLines = renderImessageBubbles(EMPTY_INBOX_TEXT, { placeholder:true });
     }
@@ -1773,7 +1871,7 @@ async function renderFromTodayJson(){
     });
     cancelImessageTimers();
     resetImessageVisuals();
-    imessageState.messageReady = messageLines.length > 0;
+    imessageState.messageReady = messageLines.length > 0 || hasEmbedBubble;
     if (imessageState.messageReady){
       if (usedPlaceholder){
         // Solo placeholder: muestra typing ~2s y luego revela el vacío.
@@ -1895,6 +1993,7 @@ function exportJSON(){
     weekly_playlist_embed: weeklySrc,
     lyric_highlight: $('#lyric')?.textContent || '',
     message: collectImessageMessage(),
+    message_embed: collectMessageEmbed(),
     message_contact: {
       name: $('#imessageName')?.textContent || '',
       avatar: $('#imessageAvatar')?.getAttribute('src') || '',
