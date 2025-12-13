@@ -1,42 +1,19 @@
 {
-  "title": "A match into water",
-  "artist": "Pierce the veil",
-  "date": "2010",
-  "cover": "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e023c8674afa47336f571b13ebd",
-  "spotify_embed": "https://open.spotify.com/embed/track/54MXF9I8s3DuiQo3g0gZ5k?utm_source=generator",
-  "lyric_highlight": "I kissed the scars on her skin\nI still think you're beautiful\nAnd I don't ever wanna lose my best friend\nI screamed out: God, you vulture!\nBring her back, or take me with her",
-  "message": "No me salian las palabras en un mensaje\nAsi que te dejo un video donde te hablo o por lo menos intento hablar",
-  "message_embed": {
-    "src": "https://res.cloudinary.com/dqvekuit6/video/upload/v1765266744/lv_0_20251208211350_1_f3nu1i.mp4",
-    "title": "BABOSO HABLA POR 5 MINUTOS Y NO DICE NADA"
-  },
-  "together_since": "2025-10-26",
+  "message_only": true,
+  "title": "",
+  "artist": "",
+  "date": "",
+  "cover": "",
+  "spotify_embed": "",
+  "lyric_highlight": "",
+  "message": "Pensé en ti\nNo cada hora, eso sería mentir\nPensé en ti todo el tiempo\n\nNo puedo sacarte de mi cabeza\n Estás en todos lados\nOdio que no me extrañes\nOdio que no me escojas\nOdio no poder odiarte\n\nSolo quiero poder mandarte un mensaje, pero tú no me quieres cerca\nNo fui yo quien se fue, fuiste tú quien me corrió\n\nOdio que hayas dañado por completo mi percepción del amor\nQue tantos meses de terapia se hayan ido a la basura en solo unas semanas\nSe suponía que no debía generalizar, que lo que viví antes no significaba que tú fueras a hacerme daño\npero me equivoqué\n\nMe enseñaste a no confiar y a no esperar nada de nadie\nEspero que mi ausencia te dé la paz que mi presencia no pudo darte",
   "message_contact": {
-    "name": "Arturo🫀🩷",
-    "avatar": "media/me.jpg",
-    "subtitle": "iMessage",
-    "timestamp": "iMessage · hoy 2:08 a. m."
+    "name": "",
+    "avatar": "",
+    "subtitle": "",
+    "timestamp": ""
   },
   "bible_text": "",
-  "poll_enabled": false,
-  "effects": {
-    "fruitRain": {
-      "enabled": true,
-      "density": 20,
-      "fruits": ["skulls"]
-    }
-  },
-  "gallery": [
-    { "src": "media/1.jpeg", "alt": "Te amaré" },
-    { "src": "media/2.jpeg", "alt": "todos" },
-    { "src": "media/3.jpeg", "alt": "los" },
-    { "src": "media/4.jpeg", "alt": "dias" },
-    { "src": "media/5.jpeg", "alt": "de" },
-    { "src": "media/6.jpeg", "alt": "mi" },
-    { "src": "media/7.jpeg", "alt": "vida" },
-    { "src": "media/8.jpeg", "alt": "mua" }
-  ],
-  "weekly_playlist_embed": "https://open.spotify.com/embed/track/5rc7178sa2YRDlBFBHY0e8?utm_source=generator"
-
+  "gallery": [],
+  "weekly_playlist_embed": ""
 }
-

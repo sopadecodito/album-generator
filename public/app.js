@@ -1795,6 +1795,13 @@ async function renderFromTodayJson(){
     const r = await fetch('today.json', { cache: 'no-store' });
     if(!r.ok) throw new Error('today.json no encontrado');
     const j = await r.json();
+    const messageOnly = j.message_only === true || j.message_only === 'true';
+    document.body.classList.toggle('message-only', messageOnly);
+    const plainMessage = document.getElementById('plainMessage');
+    if (plainMessage) {
+      plainMessage.textContent = messageOnly ? (j.message || '') : '';
+      plainMessage.classList.toggle('hidden', !messageOnly);
+    }
 
     // Meta
     $('#title').textContent = j.title || '—';
@@ -1856,41 +1863,49 @@ async function renderFromTodayJson(){
     $('#lyric').innerHTML = highlightDATA(j.lyric_highlight || '');
     imessageState.embed = null;
     const messageEmbed = j.message_embed || j.messageEmbed || j.message_embed_html || j.messageEmbedHtml;
-    let messageLines = renderImessageBubbles(j.message || '');
-    const hasEmbedBubble = renderMessageEmbed(messageEmbed);
-    const usedPlaceholder = messageLines.length === 0 && !hasEmbedBubble;
-    if (usedPlaceholder){
-      messageLines = renderImessageBubbles(EMPTY_INBOX_TEXT, { placeholder:true });
-    }
-    updateImessageContact({
-      ...(j.message_contact || {}),
-      name: j.message_contact?.name || j.contact_name,
-      avatar: j.message_contact?.avatar || j.contact_avatar,
-      subtitle: j.message_contact?.subtitle || j.message_contact?.status,
-      timestamp: j.message_contact?.timestamp || j.message_timestamp
-    });
-    cancelImessageTimers();
-    resetImessageVisuals();
-    imessageState.messageReady = messageLines.length > 0 || hasEmbedBubble;
-    if (imessageState.messageReady){
+    if (messageOnly){
+      const thread = document.getElementById('imessageThread');
+      if (thread) thread.innerHTML = '';
+      $('#imessageTyping')?.classList.add('hidden');
+      cancelImessageTimers();
+      imessageState.messageReady = false;
+    } else {
+      let messageLines = renderImessageBubbles(j.message || '');
+      const hasEmbedBubble = renderMessageEmbed(messageEmbed);
+      const usedPlaceholder = messageLines.length === 0 && !hasEmbedBubble;
       if (usedPlaceholder){
-        // Solo placeholder: muestra typing ~2s y luego revela el vacío.
-        imessageState.typingTimer = window.setTimeout(()=>{
-          $('#imessageTyping')?.classList.add('hidden');
-          revealImessageBubblesInstant();
-        }, 2000);
-        // Rescate extra: si algo sale mal, revela forzosamente.
-        setTimeout(()=>{
-          const anyShown = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble')).some(b=>b.classList.contains('show'));
-          if (!anyShown) revealImessageBubblesInstant();
-        }, 2600);
-      }else{
-        maybeStartImessageSequence();
-        // Rescate por si algún timer falla: revela después de ~3.2s.
-        setTimeout(()=>{
-          const anyShown = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble')).some(b=>b.classList.contains('show'));
-          if (!anyShown) revealImessageBubblesInstant();
-        }, 3200);
+        messageLines = renderImessageBubbles(EMPTY_INBOX_TEXT, { placeholder:true });
+      }
+      updateImessageContact({
+        ...(j.message_contact || {}),
+        name: j.message_contact?.name || j.contact_name,
+        avatar: j.message_contact?.avatar || j.contact_avatar,
+        subtitle: j.message_contact?.subtitle || j.message_contact?.status,
+        timestamp: j.message_contact?.timestamp || j.message_timestamp
+      });
+      cancelImessageTimers();
+      resetImessageVisuals();
+      imessageState.messageReady = messageLines.length > 0 || hasEmbedBubble;
+      if (imessageState.messageReady){
+        if (usedPlaceholder){
+          // Solo placeholder: muestra typing ~2s y luego revela el vacío.
+          imessageState.typingTimer = window.setTimeout(()=>{
+            $('#imessageTyping')?.classList.add('hidden');
+            revealImessageBubblesInstant();
+          }, 2000);
+          // Rescate extra: si algo sale mal, revela forzosamente.
+          setTimeout(()=>{
+            const anyShown = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble')).some(b=>b.classList.contains('show'));
+            if (!anyShown) revealImessageBubblesInstant();
+          }, 2600);
+        }else{
+          maybeStartImessageSequence();
+          // Rescate por si algún timer falla: revela después de ~3.2s.
+          setTimeout(()=>{
+            const anyShown = Array.from(document.querySelectorAll('#imessageThread .imessage-bubble')).some(b=>b.classList.contains('show'));
+            if (!anyShown) revealImessageBubblesInstant();
+          }, 3200);
+        }
       }
     }
     syncReactionsRemote();

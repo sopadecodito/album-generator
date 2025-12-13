@@ -133,6 +133,24 @@ body.bg-locked{
 .toolbar{display:grid; gap:12px; margin-bottom:16px}
 body.viewer .toolbar{display:none}
 
+/* Modo solo mensaje (oculta todo excepto la nota) */
+body.message-only .toolbar,
+body.message-only .album-head,
+body.message-only .player,
+body.message-only .content > :not(.magical-note),
+body.message-only .obsession-twitch,
+body.message-only #fruitRain,
+body.message-only #starfield{
+  display:none !important;
+}
+body.message-only .page{width:min(720px,100%);}
+body.message-only .magical-note{margin-top:0;}
+body.message-only .imessage-case,
+body.message-only .imessage-foot,
+body.message-only .light-beam,
+body.message-only .message-title{display:none;}
+body.message-only #plainMessage{display:block;}
+
 .actions{display:flex; gap:10px}
 .input{
   width:100%; padding:12px 14px; border-radius:12px;
@@ -160,6 +178,15 @@ body.viewer .toolbar{display:none}
 }
 .palette{display:flex; gap:8px; margin-top:8px}
 .palette .sw{width:22px;height:22px;border-radius:6px;border:1px solid rgba(255,255,255,.18)}
+
+.plain-message{
+  display:block;
+  width:100%;
+  white-space:pre-line;
+  line-height:1.6;
+  font-size:1.05rem;
+  color:var(--text);
+}
 
 /* Player */
 .player{margin:16px 0}
