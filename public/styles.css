@@ -469,6 +469,7 @@ body.message-only #plainMessage{display:block;}
   display:flex;
   flex-direction:column;
   gap:16px;
+  grid-column:1 / -1; /* ocupa todo el ancho disponible del grid */
 }
 .message-title{
   margin:0;
@@ -526,8 +527,8 @@ body.message-only #plainMessage{display:block;}
 
 .imessage-case{
   position:relative;
-  width:min(360px,100%);
-  margin:0 auto;
+  width:100%;
+  margin:0;
   padding:18px 16px 14px;
   border-radius:32px;
   background:#fdfdfd;
