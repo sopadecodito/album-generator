@@ -13,18 +13,11 @@
   --feather: 120px;    /* suavizado del borde */
   --dark: rgb(5, 2, 15);  /* oscuridad global */
    --letter-max: 60vh; /* puedes cambiar a 70vh o 520px, etc. */
-  --cursor-emo: url("media/ani547.cur"), auto;
 }
 
 
 *{box-sizing:border-box}
 html,body{height:100%}
-body{
-  cursor: var(--cursor-emo);
-}
-a, button, .btn, input, textarea, select, option{
-  cursor: var(--cursor-emo);
-}
 /* se añade desde JS: body.classList.add('bg-locked') */
 body.bg-locked{
   background:
@@ -186,6 +179,39 @@ body.message-only #plainMessage{display:block;}
   line-height:1.6;
   font-size:1.05rem;
   color:var(--text);
+}
+.te-amo-glyph{
+  display:inline-flex;
+  align-items:center;
+  padding:2px 8px;
+  margin:0 2px;
+  border-radius:14px;
+  background:linear-gradient(120deg, rgba(123,255,214,.18), rgba(129,178,255,.22));
+  border:1px solid rgba(255,255,255,.16);
+  color:#b9e8ff;
+  font-weight:900;
+  letter-spacing:0.08em;
+  font-family:"SF Mono","Fira Code","JetBrains Mono",monospace;
+  box-shadow:0 10px 22px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12);
+  cursor:pointer;
+  user-select:text;
+  transition:transform .14s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+}
+.te-amo-glyph:hover,
+.te-amo-glyph:focus-visible{
+  transform:translateY(-1px);
+  border-color:var(--accent);
+  background:linear-gradient(120deg, rgba(123,255,214,.28), rgba(129,178,255,.28));
+  color:#d3f9ff;
+}
+.te-amo-glyph.revealed{
+  color:#8fffc7;
+  background:linear-gradient(120deg, rgba(141,255,188,.24), rgba(119,197,255,.18));
+  box-shadow:0 12px 26px rgba(0,0,0,.32), 0 0 18px rgba(111,255,182,.25);
+}
+.te-amo-glyph:focus-visible{
+  outline:2px solid color-mix(in oklch, var(--accent) 70%, transparent);
+  outline-offset:2px;
 }
 
 /* Player */
@@ -493,6 +519,7 @@ body.message-only #plainMessage{display:block;}
   background:rgba(2,2,8,.92);
   transition:opacity .45s ease;
   z-index:0;
+  pointer-events:none;
 }
 .magical-note.lit .message-room::before{
   opacity:0;
@@ -505,6 +532,7 @@ body.message-only #plainMessage{display:block;}
   opacity:0;
   transition:opacity .4s ease;
   z-index:0;
+  pointer-events:none;
 }
 .magical-note.lit .light-beam{
   opacity:.55;

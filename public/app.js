@@ -1395,6 +1395,80 @@ function highlightDATA(s){
   const safe = escapeHTML(s || '').replace(/\n/g,'<br>');
   return safe.replace(/\bDATA\b/g, '<span class="data-glow">DATA</span>');
 }
+function decorateTeAmo(text){
+  const safe = escapeHTML(text || '').replace(/\n/g,'<br>');
+  let swapped = false;
+  return safe.replace(/te amo/i, (match)=>{
+    if (swapped) return match;
+    swapped = true;
+    return `<span class="te-amo-glyph" data-real="${match}" title="Haz click para revelar" aria-label="Mostrar ${match}"></span>`;
+  });
+}
+function initTeAmoGlyph(root){
+  if (!root) return;
+  const glyph = root.querySelector('.te-amo-glyph');
+  if (!glyph) return;
+  const target = glyph.dataset.real || 'Te amo';
+  const runes = 'ᔑʖᓵ↸ᒷ⊣⍑╎⋮ꖌꖎᒲリ𝙹¡∷||⨅';
+  let revealed = false;
+  let hovering = false;
+  let timer = null;
+  const scramble = () => target.split('').map(()=> runes[Math.floor(Math.random() * runes.length)] || '*').join('');
+  const renderScramble = () => {
+    if (revealed) return;
+    glyph.textContent = hovering ? target : scramble();
+  };
+  const startScramble = ()=>{
+    if (timer || revealed) return;
+    timer = setInterval(renderScramble, 120);
+    renderScramble();
+  };
+  const stopScramble = ()=>{
+    if (timer){
+      clearInterval(timer);
+      timer = null;
+    }
+  };
+  startScramble();
+  const reveal = () => {
+    if (revealed) return;
+    revealed = true;
+    glyph.textContent = target;
+    glyph.classList.add('revealed');
+    stopScramble();
+  };
+  glyph.setAttribute('role','button');
+  glyph.setAttribute('tabindex','0');
+  glyph.addEventListener('mouseenter', ()=>{
+    if (revealed) return;
+    hovering = true;
+    glyph.textContent = target;
+    stopScramble();
+  });
+  glyph.addEventListener('mouseleave', ()=>{
+    if (revealed) return;
+    hovering = false;
+    startScramble();
+  });
+  glyph.addEventListener('focus', ()=>{
+    if (revealed) return;
+    hovering = true;
+    glyph.textContent = target;
+    stopScramble();
+  });
+  glyph.addEventListener('blur', ()=>{
+    if (revealed) return;
+    hovering = false;
+    startScramble();
+  });
+  glyph.addEventListener('click', reveal);
+  glyph.addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      reveal();
+    }
+  });
+}
 function calcDaysSince(dateStr){
   if (!dateStr) return null;
   const d = new Date(dateStr);
@@ -1579,7 +1653,12 @@ function renderImessageBubbles(message, options = {}){
       const p = document.createElement('p');
       p.className = 'spell-text';
       if (idx === 0) p.id = 'note';
-      p.textContent = item.text || '';
+      if (placeholder){
+        p.textContent = item.text || '';
+      }else{
+        p.innerHTML = decorateTeAmo(item.text || '');
+        initTeAmoGlyph(p);
+      }
       bubble.appendChild(p);
       if (!bubble.dataset.lineValue) bubble.dataset.lineValue = item.text || '';
     }
@@ -1799,7 +1878,12 @@ async function renderFromTodayJson(){
     document.body.classList.toggle('message-only', messageOnly);
     const plainMessage = document.getElementById('plainMessage');
     if (plainMessage) {
-      plainMessage.textContent = messageOnly ? (j.message || '') : '';
+      if (messageOnly) {
+        plainMessage.innerHTML = decorateTeAmo(j.message || '');
+        initTeAmoGlyph(plainMessage);
+      } else {
+        plainMessage.textContent = '';
+      }
       plainMessage.classList.toggle('hidden', !messageOnly);
     }
 
